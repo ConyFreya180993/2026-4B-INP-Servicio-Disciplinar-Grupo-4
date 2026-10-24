@@ -87,3 +87,10 @@ El proyecto se encuentra en una etapa académica intermedia de diseño y desarro
 1. **Estrategia de Desacoplamiento:** Definir si Flowable invocará al servicio Java mediante una tarea de servicio HTTP nativa de Flowable (REST directo) o si se mantendrá la arquitectura del Worker Externo mediante colas/suscripción.
 2. **Ciclo de Transición de Datos:** Establecer las reglas estrictas de negocio para definir cuándo un registro de la tabla `leads` se convierte oficialmente en un registro de la tabla `clientes` para empezar a ser considerado en el proceso de fidelización.
 3. **Lógica de los Temporizadores:** Determinar si el motor Flowable controlará el calendario de alertas de forma interna (Timer Start Events basados en expresiones cron) o si un componente externo en Java despertará el proceso diariamente analizando la base de datos MariaDB.
+
+---
+## Evidencia de Contingencia (Indisponibilidad de Flowable)
+
+Se deja registro de la caída del servicio de Flowable al momento de preparar la entrega, razón por la cual los modelos AS-IS y TO-BE fueron resguardados en estándar BPMN 2.0 mediante bpmn.io:
+
+![Evidencia Flowable Caído](./Captura%20de%20pantalla%202026-10-24%20193442.png)
