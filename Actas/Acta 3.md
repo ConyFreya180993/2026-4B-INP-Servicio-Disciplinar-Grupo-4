@@ -27,14 +27,17 @@ Se realizó una revisión cruzada de los directorios del monorepo, confirmando q
 ---
 
 ## 3. Contingencia Técnica Persistente (Flowable Cloud)
-- Se verificó durante el fin de semana que la plataforma institucional **Flowable Cloud** (`iplacex.cloud.flowable.com`) permaneció fuera de servicio por mantenimiento del proveedor (*"We'll be back soon! This service is under maintenance"*).
+- Se verificó durante todo el fin de semana y hasta el cierre de la jornada dominical que la plataforma institucional **Flowable Cloud** (`iplacex.cloud.flowable.com`) permaneció fuera de servicio por mantenimiento del proveedor (*"We'll be back soon! This service is under maintenance"*).
 - Debido a esta situación externa de fuerza mayor, la entrega se consolida mediante el enfoque modular desacoplado acordado previamente, dejando documentados los modelos en estándar BPMN 2.0 (`bpmn.io`) y las pruebas locales de backend y base de datos, posponiendo la importación y conexión en vivo hasta que el servicio se restablezca.
 
-### Registro de indisponibilidad (24-10-2026 a las 19:35 hrs.)
+### Registro 1: Sábado 24-10-2026 (19:35 hrs.)
 ![Respaldo caída Flowable 24-10](./respaldo-caida-flowable-24-10.png)
 
-### Registro de indisponibilidad (25-10-2026 a las 17:40 hrs.)
-![Respaldo caída Flowable 25-10](./respaldo-caida-flowable-25-10.png)
+### Registro 2: Domingo 25-10-2026 (17:40 hrs.)
+![Respaldo caída Flowable 25-10 tarde](./respaldo-caida-flowable-25-10.png)
+
+### Registro 3: Domingo 25-10-2026 al cierre de entrega (22:54 hrs.)
+![Respaldo caída Flowable 25-10 noche](./respaldo-caida-flowable-25-10-noche.jpeg)
 
 ---
 
