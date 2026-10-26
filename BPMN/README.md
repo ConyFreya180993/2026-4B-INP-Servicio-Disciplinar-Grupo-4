@@ -76,8 +76,8 @@ El proyecto se encuentra en una etapa académica intermedia de diseño y desarro
 
 * **Modelamiento de Procesos (BPMN 2.0 en Flowable):** Propuesto / En Diseño.
 * **Formularios Dinámicos de Tareas (Flowable Forms):** Propuesto.
-* **Base de Datos (MariaDB - Tablas leads/seguimientos):** En Desarrollo (Diseño de esquemas preliminares).
-* **Servicio Web REST (Java):** En Desarrollo (Codificación de controladores y endpoints básicos).
+* **Base de Datos (MariaDB - Tablas leads/seguimientos):** Propuesto (Diseño de esquemas preliminares).
+* **Servicio Web REST (Java):** Propuesto (Codificación de controladores y endpoints básicos).
 * **Worker Externo de Invocación:** Pendiente de Integración (Sujeto a la validación de la arquitectura final de comunicación del equipo).
 
 ---
