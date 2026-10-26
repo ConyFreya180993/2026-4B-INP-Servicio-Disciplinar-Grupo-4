@@ -63,4 +63,4 @@ Se validó localmente la creación del esquema, la inserción de los lotes de da
 *Completado en esta entrega:*
 - [x] Diseño inicial del esquema relacional en SQL.
 - [x] Creación de las tablas leads y seguimientos con su relación de clave foránea.
-- [x] Carga de registros de prueba y validación mediante c
+- [x] Carga de registros de prueba
