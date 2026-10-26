@@ -19,16 +19,16 @@ Se realizó una revisión cruzada de los directorios del monorepo, confirmando q
 
 | Área / Directorio | Responsable | Estado Revisado | Detalle de Cierre |
 | :--- | :--- | :--- | :--- |
-| **`Proyecto-1-WebServices/`** | Camila Vega (`Camila678`) | Completado | Servicio Java REST (`peluditos-webservice`) funcional en puerto `8080`, con `README.md` y captura de evidencia en `/Evidencia`. |
-| **`BPMN/`** | José Loyola (`jloyola97`) | Completado | Diagramas `AS-IS` y `TO-BE` (`.bpmn` y `.svg`), evidencia de contingencia de Flowable y actualización de precisión en su `README.md`. |
-| **`Base-de-Datos/`** | Gabriel Arellano (`avockato`) | Completado | Script `esquema_peluditos.sql` (tablas `leads` y `seguimientos`, datos y `JOIN`), incorporando su `README.md` descriptivo y evidencias de prueba local. |
-| **`Arquitectura/` y `Actas/`** | Constanza Núñez (`ConyFreya180993`) | Completado | Diagrama de arquitectura (primera versión `.png` y `.pptx`), `README.md` de arquitectura, actualización del `README.md` principal y registro de actas. |
+| **`Proyecto-1-WebServices/`** | Camila Vega (`Camila678`) | Avance inicial entregado | Servicio Java REST (`peluditos-webservice`) funcional en puerto `8080`, con `README.md` y captura de evidencia en `/Evidencia`. |
+| **`BPMN/`** | José Loyola (`jloyola97`) | Avance inicial entregado  | Diagramas `AS-IS` y `TO-BE` (`.bpmn` y `.svg`), evidencia de contingencia de Flowable y actualización de precisión en su `README.md`. |
+| **`Base-de-Datos/`** | Gabriel Arellano (`avockato`) | Avance inicial entregado  | Script `esquema_peluditos.sql` (tablas `leads` y `seguimientos`, datos y `JOIN`), incorporando su `README.md` descriptivo y evidencias de prueba local. |
+| **`Arquitectura/` y `Actas/`** | Constanza Núñez (`ConyFreya180993`) | Avance inicial entregado  | Diagrama de arquitectura (primera versión `.png` y `.pptx`), `README.md` de arquitectura, actualización del `README.md` principal y registro de actas. |
 
 ---
 
 ## 3. Contingencia Técnica Persistente (Flowable Cloud)
 - Se verificó durante todo el fin de semana y hasta el cierre de la jornada dominical que la plataforma institucional **Flowable Cloud** (`iplacex.cloud.flowable.com`) permaneció fuera de servicio por mantenimiento del proveedor (*"We'll be back soon! This service is under maintenance"*).
-- Debido a esta situación externa de fuerza mayor, la entrega se consolida mediante el enfoque modular desacoplado acordado previamente, dejando documentados los modelos en estándar BPMN 2.0 (`bpmn.io`) y las pruebas locales de backend y base de datos, posponiendo la importación y conexión en vivo hasta que el servicio se restablezca.
+- Debido a esta situación externa de contingencia técnica, la entrega se consolida mediante el enfoque modular desacoplado acordado previamente, dejando documentados los modelos en estándar BPMN 2.0 (`bpmn.io`) y las pruebas locales de backend y base de datos, posponiendo la importación y conexión en vivo hasta que el servicio se restablezca.
 
 ### Registro 1: Sábado 24-10-2026 (19:35 hrs.)
 ![Respaldo caída Flowable 24-10](./respaldo-caida-flowable-24-10.png)
@@ -38,6 +38,8 @@ Se realizó una revisión cruzada de los directorios del monorepo, confirmando q
 
 ### Registro 3: Domingo 25-10-2026 al cierre de entrega (22:54 hrs.)
 ![Respaldo caída Flowable 25-10 noche](./respaldo-caida-flowable-25-10-noche.jpeg)
+
+La indisponibilidad observada quedó respaldada mediante las capturas incorporadas en esta acta. Las pruebas de ejecución e integración con Flowable permanecen pendientes.
 
 ---
 
