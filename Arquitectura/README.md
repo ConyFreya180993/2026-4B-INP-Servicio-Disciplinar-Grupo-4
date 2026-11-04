@@ -1,21 +1,47 @@
-# Arquitectura Preliminar de la Solución — Peluditos Pet Chile
+# Arquitectura y seguimiento de la Entrega 2
 
-Este directorio contiene el modelo conceptual de arquitectura correspondiente a la **Entrega 1**, junto con su archivo fuente editable (`arquitectura-peluditos.pptx`).
+> **Estado del documento:** Borrador de trabajo. La arquitectura y los estados de implementación se validarán con las evidencias que comparta el equipo. **“Propuesto” no significa “implementado”.**
 
-## Esquema de Arquitectura (Primera Versión)
+---
 
-![Arquitectura Primera Versión](./arquitectura-peluditospet-primera-version.png)
+## 1. Arquitectura propuesta
 
-## Componentes del Esquema
+![Diagrama UML de Arquitectura](arquitectura_uml.png)
 
-1. **Encargada del negocio (Usuario):** Inicia y revisa las gestiones comerciales (registro de consultas y seguimiento de oportunidades).
-2. **Flowable (Proceso BPMN + Formularios):** Gestiona el flujo de trabajo propuesto (TO-BE) y la captura de datos de leads mediante formularios. *(Estado actual: En modelado / Contingencia en bpmn.io por caída temporal de plataforma).*
-3. **Worker externo:** Componente encargado de obtener el trabajo pendiente de Flowable y solicitar la operación externa. *(Estado actual: Planificado / En desarrollo).*
-4. **Servicio web Java REST:** Expone una operación de prueba mediante HTTP para validar la integración técnica. *(Estado actual: En desarrollo con Spring Boot).*
-5. **Base de Datos MariaDB:** Almacena las tablas preliminares `leads` y `seguimientos`. *(Estado actual: En pruebas locales con XAMPP).*
+El sistema se organiza en cuatro partes principales:
+1. **Bandeja web:** interfaz propia para iniciar procesos y revisar tareas.
+2. **Flowable OSS 7.2:** ejecuta los procesos BPMN y mantiene su estado en `flowable_db`.
+3. **External Worker y servicio REST:** el worker obtiene trabajos desde Flowable y se comunica con el servicio REST del negocio.
+4. **MariaDB:** conserva los datos del negocio en `peluditos_db`, separada de la base de Flowable.
 
-## Historial de Diseño en el Archivo Editable (.pptx)
+La bandeja web se conectará directamente con el servicio REST del negocio solo si esa consulta forma parte del diseño y está implementada. Las conexiones y componentes del diagrama representan la arquitectura propuesta hasta que se verifiquen mediante pruebas.
 
-- **Diapositiva 1 (Portada):** Identificación del proyecto Peluditos Pet Chile.
-- **Diapositiva 2 (Pre base):** Lluvia de ideas conceptual generada inicialmente para explorar posibles alcances y descartar componentes fuera de la fase actual.
-- **Diapositiva 3 (Primera versión):** Modelo de arquitectura depurado y acordado por el equipo para la Entrega 1, acotado a los 5 componentes del flujo principal.
+---
+
+## 2. Estado de los componentes
+
+| Componente | Responsable | Estado E2 | Evidencia o pendiente |
+| :--- | :--- | :--- | :--- |
+| **Arquitectura y documentación** | Constanza | En desarrollo / Borrador | Diagrama UML de arquitectura y documentación inicial listos; validar colores finales con la implementación del equipo. |
+| **Modelos BPMN y Flowable OSS 7.2** | José | Pendiente de confirmar | Compartir diagramas corregidos y evidencia de ejecución de tareas de usuario y tareas externas. |
+| **Base de datos MariaDB** | Gabriel | Pendiente de confirmar | Compartir esquema actualizado y evidencia de persistencia en `peluditos_db` (separada de `flowable_db`). |
+| **Servicios Jakarta REST y External Worker** | Camila | Pendiente de confirmar | Compartir operaciones disponibles y pruebas (`curl`/Postman); distinguir pruebas locales de integración con Flowable. |
+| **Bandeja web** | Equipo | Pendiente de confirmar | Definir si se presentará como prototipo/*wireframe* o como funcionalidad implementada y probada. |
+
+---
+
+## 3. Criterio para actualizar el estado
+
+- **Propuesto:** está en el diseño, sin evidencia de implementación.
+- **En desarrollo:** existe avance, pero aún no está probado.
+- **Probado localmente:** funciona de forma aislada; falta confirmar su integración.
+- **Integrado y probado:** funciona conectado con los componentes correspondientes y existe evidencia.
+- **Pendiente:** no se ha implementado o no se ha confirmado su estado.
+
+Los colores del diagrama se actualizarán según estos estados y las evidencias disponibles. **No se marcará un componente como “integrado y probado” solo porque exista su código o un prototipo.**
+
+---
+
+## 4. Próximo paso
+
+Cada responsable puede actualizar el estado de su componente y enlazar la evidencia correspondiente en su carpeta `/Evidencia`. El objetivo es documentar con claridad lo alcanzado y lo que queda pendiente, sin asumir avances no confirmados.
