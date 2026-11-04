@@ -6,7 +6,7 @@
 
 ## 1. Arquitectura propuesta
 
-![Diagrama UML de Arquitectura](arquitectura_uml.png)
+
 
 El sistema se organiza en cuatro partes principales:
 1. **Bandeja web:** interfaz propia para iniciar procesos y revisar tareas.
