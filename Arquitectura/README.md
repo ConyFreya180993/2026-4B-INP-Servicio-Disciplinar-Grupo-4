@@ -2,21 +2,18 @@
 
 > **Estado del documento:** Borrador de trabajo. La arquitectura y los estados de implementación se validarán con las evidencias que comparta el equipo. **“Propuesto” no significa “implementado”.**
 
----
-
 ## 1. Arquitectura propuesta
 
-
+![Diagrama UML de Despliegue y Componentes - Entrega 2](./Arquitectura-entrega-2-v1.png)
 
 El sistema se organiza en cuatro partes principales:
-1. **Bandeja web:** interfaz propia para iniciar procesos y revisar tareas.
-2. **Flowable OSS 7.2:** ejecuta los procesos BPMN y mantiene su estado en `flowable_db`.
-3. **External Worker y servicio REST:** el worker obtiene trabajos desde Flowable y se comunica con el servicio REST del negocio.
-4. **MariaDB:** conserva los datos del negocio en `peluditos_db`, separada de la base de Flowable.
+
+1. **Bandeja web (`Proyecto-3-WebApp`):** interfaz propia (HTML/JS/PHP) para iniciar procesos y revisar tareas contra la API de Flowable (`Flujo 1`) y consultar datos de negocio (`Flujo 2`), incluyendo modo de simulación local.
+2. **Flowable OSS 7.2 (`BPMN`):** ejecuta los procesos BPMN mediante *User Tasks* y *External Worker Tasks*, manteniendo su estado en `flowable_db` (`Flujo 5`).
+3. **External Worker (`Proyecto-2-ExternalWorker`) y Servicio Jakarta REST (`Proyecto-1-WebServices`):** el worker en Java 21 obtiene trabajos desde Flowable mediante *HTTP Polling* (`Flujo 3`) y se comunica por HTTP/JSON (`Flujo 4`) con el servicio Jakarta RESTful WS (Jersey) del negocio.
+4. **MariaDB (`Base-de-Datos`):** conserva los datos del negocio en `peluditos_db` (`Flujo 6`), separada de la base interna `flowable_db` de Flowable.
 
 La bandeja web se conectará directamente con el servicio REST del negocio solo si esa consulta forma parte del diseño y está implementada. Las conexiones y componentes del diagrama representan la arquitectura propuesta hasta que se verifiquen mediante pruebas.
-
----
 
 ## 2. Estado de los componentes
 
@@ -28,8 +25,6 @@ La bandeja web se conectará directamente con el servicio REST del negocio solo 
 | **Servicios Jakarta REST y External Worker** | Camila | Pendiente de confirmar | Compartir operaciones disponibles y pruebas (`curl`/Postman); distinguir pruebas locales de integración con Flowable. |
 | **Bandeja web** | Equipo | Pendiente de confirmar | Definir si se presentará como prototipo/*wireframe* o como funcionalidad implementada y probada. |
 
----
-
 ## 3. Criterio para actualizar el estado
 
 - **Propuesto:** está en el diseño, sin evidencia de implementación.
@@ -39,8 +34,6 @@ La bandeja web se conectará directamente con el servicio REST del negocio solo 
 - **Pendiente:** no se ha implementado o no se ha confirmado su estado.
 
 Los colores del diagrama se actualizarán según estos estados y las evidencias disponibles. **No se marcará un componente como “integrado y probado” solo porque exista su código o un prototipo.**
-
----
 
 ## 4. Próximo paso
 
