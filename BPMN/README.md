@@ -16,23 +16,28 @@ El proceso opera actualmente de forma informal y descentralizada a través de re
   * Disponibilidad de la emprendedora para alimentar manualmente un formulario web mientras atiende al cliente en la red social.
 
 ### 1.2. Proceso Propuesto (TO-BE)
-El nuevo diseño introduce el control de flujo y la persistencia obligatoria de datos:
-1. **Inicio:** Evento de mensaje al recibir una consulta digital.
-2. **Registro de Lead:** Tarea de usuario donde se atienden las dudas y se guardan los datos en un formulario de Flowable.
-3. **Evaluación de Seguimiento:** Compuerta exclusiva (`¿Requiere seguimiento?`) que decide si el lead requiere un contacto posterior o si finaliza inmediatamente por compra directa o rechazo.
-4. **Seguimiento Comercial:** Tarea de usuario programada para evitar la pérdida de potenciales clientes.
-5. **Sincronización Técnica:** Si la venta se concreta, una *Service Task* invoca al **Worker externo** para registrar la información de manera limpia en la base de datos MariaDB a través de servicios REST en Java.
+El nuevo diseño introduce el control de flujo y la persistencia obligatoria de datos mediante tareas gobernadas por el motor:
+1. **Inicio:** Evento de inicio básico (`Se recibe consulta a traves de canales online`) al recibir una consulta digital.
+2. **Registro de Consulta:** Tarea de usuario (`responder consulta registrando datos de posible cliente`) vinculada al formulario `registroConsulta`.
+3. **Agendamiento Comercial:** Tarea de usuario obligatoria (`Agendar seguimiento comercial`) vinculada al formulario `seguimientoComercial`.
+4. **Evaluación Comercial:** Compuerta exclusiva (`Venta completada?`) que valida la condición de negocio a través de la variable `${seConcretoLaVenta}`.
+5. **Cierre de Flujo por Worker Externo:**
+   * **Si la venta se concreta (`true`):** Una *External Worker Task* invoca al tópico `actualizar datos de ultima consulta` para sincronizar la información limpia en la base de datos MariaDB. El flujo finaliza en `Lead convertido en cliente`.
+   * **Si la venta NO se concreta (`false`):** Una *External Worker Task* invoca al tópico `registrar resultado lead` y el flujo finaliza de forma controlada en `Lead Perdido`.
 
 ---
 
 ## 2. Módulo 2: Generación de Oportunidades Comerciales (Problema 2)
 
 ### 2.1. Proceso Propuesto (TO-BE)
-Para evitar instancias "eternas" en el motor de procesos esperando fechas anuales, se optó por un **proceso independiente** especializado en marketing y fidelización.
+Para evitar instancias "eternas" en el motor de procesos esperando fechas anuales, se optó por un **proceso independiente** especializado en marketing y fidelización reactiva.
 
-* **Inicio Múltiple:** El flujo se puede gatillar por un *Timer Start Event* (automatización basada en fechas como el cumpleaños de la mascota) o por un *Message/Manual Start Event* (cuando la emprendedora lanza una campaña extraordinaria como Navidad o el Aniversario del emprendimiento).
-* **Segmentación:** Una *Service Task* consulta la base de datos mediante la API REST para extraer la lista de clientes que cumplen con el criterio del evento.
-* **Contacto Humano:** El motor genera tareas de usuario en Flowable con los datos del cliente y el beneficio a ofrecer. La emprendedora realiza el contacto manual, asegurando que ninguna oportunidad de recompra se pierda.
+* **Inicio por Mensaje:** El flujo se gatilla mediante un *Start Message Event* (`iniciar campaña`) que responde a la señal o mensaje `iniciarCampana`.
+* **Configuración de Campaña:** La emprendedora ejecuta la tarea de usuario inicial `Crear campaña Cumpleaños / celebracion`.
+* **Persistencia de Campaña:** Una *External Worker Task* (`Registrar campaña`) envía la información al tópico `registrar datos campaña iniciada` para guardar el contexto en el sistema.
+* **Segmentación:** Tarea de usuario (`Generar segmento de clientes objetivo`) para delimitar manualmente el listado de clientes que cumplen con el criterio.
+* **Contacto Humano:** El motor genera la tarea de usuario `Contactar clientes correspondientes al segmento generado`. La emprendedora realiza el contacto manual, asegurando que ninguna oportunidad de recompra se pierda.
+* **Registro de Resultados:** Una *External Worker Task* (`Registrar respuesta del cliente`) procesa en el tópico `registrar si cliente muestra interes en la oferta` antes de dar por cerrado el flujo en el evento `Oportunidad gestionada`.
 
 ---
 
@@ -40,10 +45,10 @@ Para evitar instancias "eternas" en el motor de procesos esperando fechas anuale
 
 | Proceso / Problema | Situación Actual (AS-IS) | Situación Propuesta (TO-BE) | Beneficio Esperado |
 | :--- | :--- | :--- | :--- |
-| **Captura de Leads** | Las consultas quedan atrapadas en los historiales de chats de cada red social. | Registro centralizado mediante formularios de Flowable en el inicio del proceso. | Trazabilidad completa de las consultas y control del embudo de ventas. |
-| **Seguimiento Comercial** | El olvido o la falta de tiempo causa que no se vuelva a contactar a los posibles clientes. | Tareas explícitas de seguimiento gobernadas y alertadas por el motor de procesos. | Incremento en la tasa de conversión de leads a clientes reales. |
-| **Fechas Clave e Hitos** | No existe una forma sistemática de identificar oportunidades asociadas a fechas relevantes. | Activacion automática y manual de campañas según datos de la mascota y calendario. | Estímulo constante de la recompra y fidelización activa del cliente. |
-| **Métricas del Negocio** | Imposibilidad absoluta de medir cuántas consultas terminan efectivamente en ventas. | Clasificación obligatoria del resultado del lead y de la oportunidad al cierre del flujo. | Obtención de estadísticas reales para la toma de decisiones. |
+| **Captura de Leads** | Las consultas quedan atrapadas en los historiales de chats de cada red social. | Registro centralizado mediante formularios de Flowable (`registroConsulta`). | Trazabilidad completa de las consultas y control del embudo de ventas. |
+| **Seguimiento Comercial** | El olvido o la falta de tiempo causa que no se vuelva a contactar a los posibles clientes. | Flujo guiado que obliga al agendamiento y evaluación del seguimiento antes del cierre. | Incremento en la tasa de conversión de leads a clientes reales. |
+| **Fechas Clave e Hitos** | No existe una forma sistemática de identificar oportunidades asociadas a fechas relevantes. | Activación por eventos de mensaje para campañas específicas (Cumpleaños, Navidad, etc.). | Estímulo constante de la recompra y fidelización activa del cliente. |
+| **Métricas del Negocio** | Imposibilidad absoluta de medir cuántas consultas terminan efectivamente en ventas. | Clasificación e integración obligatoria del resultado del lead (`Venta completada?`) en MariaDB. | Obtención de estadísticas reales para la toma de decisiones. |
 
 ---
 
@@ -56,11 +61,11 @@ Para evitar instancias "eternas" en el motor de procesos esperando fechas anuale
 * `detalle_consulta` (Text) - *Confirmado*
 * `contacto_directo` (String) - *Pendiente de validación con el cliente (Teléfono/Email)*
 
-### 4.2. Formulario de Seguimiento Comercial (`tabla: seguimientos`)
+### 4.2. Formulario de Seguimiento Comercial (`tabla: seguimientos` / FormKey: `seguimientoComercial`)
 * `id_lead` (Integer - FK) - *Confirmado*
 * `fecha_accion` (Date) - *Confirmado*
 * `comentarios_seguimiento` (Text) - *Confirmado*
-* `estado_resultado` (String) - *Confirmado* [Interesado, No responde, Rechazado, Venta Concretada]
+* `seConcretoLaVenta` (Boolean) - *Variable crítica de control de flujo* [True, False]
 
 ### 4.3. Formulario de Oportunidades (`tabla: oportunidades_comerciales`)
 * `id_oportunidad` (Integer - PK) - *Confirmado*
@@ -74,19 +79,23 @@ Para evitar instancias "eternas" en el motor de procesos esperando fechas anuale
 
 El proyecto se encuentra en una etapa académica intermedia de diseño y desarrollo de software:
 
-* **Modelamiento de Procesos (BPMN 2.0 en Flowable):** Propuesto / En Diseño.
-* **Formularios Dinámicos de Tareas (Flowable Forms):** Propuesto.
+* **Modelamiento de Procesos (BPMN 2.0 en Flowable):** Completado e Importado (Resguardado mediante estándar XML).
+* **Formularios Dinámicos de Tareas (Flowable Forms):** Claves de formularios definidas (`registroConsulta` y `seguimientoComercial`).
 * **Base de Datos (MariaDB - Tablas leads/seguimientos):** Propuesto (Diseño de esquemas preliminares).
 * **Servicio Web REST (Java):** Propuesto (Codificación de controladores y endpoints básicos).
-* **Worker Externo de Invocación:** Pendiente de Integración (Sujeto a la validación de la arquitectura final de comunicación del equipo).
+* **Workers Externos de Invocación:** Diseñados e integrados en el flujo BPMN mediante la arquitectura de suscripción a los siguientes tópicos específicos de Flowable:
+  * `actualizar datos de ultima consulta`
+  * `registrar resultado lead`
+  * `registrar datos campaña iniciada`
+  * `registrar si cliente muestra interes en la oferta`
 
 ---
 
 ## 6. Dudas y Decisiones Pendientes
 
-1. **Estrategia de Desacoplamiento:** Definir si Flowable invocará al servicio Java mediante una tarea de servicio HTTP nativa de Flowable (REST directo) o si se mantendrá la arquitectura del Worker Externo mediante colas/suscripción.
+1. **Estrategia de Desacoplamiento:** Confirmada la arquitectura orientada a **Workers Externos** asíncronos mediante suscripción a tópicos específicos en el motor, descartando las tareas de servicio HTTP REST directas de Flowable.
 2. **Ciclo de Transición de Datos:** Establecer las reglas estrictas de negocio para definir cuándo un registro de la tabla `leads` se convierte oficialmente en un registro de la tabla `clientes` para empezar a ser considerado en el proceso de fidelización.
-3. **Lógica de los Temporizadores:** Determinar si el motor Flowable controlará el calendario de alertas de forma interna (Timer Start Events basados en expresiones cron) o si un componente externo en Java despertará el proceso diariamente analizando la base de datos MariaDB.
+3. **Gatillo de Campañas Automáticas:** Determinar si el Evento de Mensaje (`iniciar campaña`) será despertado de forma programada por un componente externo en Java (ej. Spring Boot Scheduler con `@Scheduled`) que analice la base de datos MariaDB diariamente en busca de cumpleaños de mascotas.
 
 ---
 ## Evidencia de Contingencia (Indisponibilidad de Flowable)
@@ -94,3 +103,8 @@ El proyecto se encuentra en una etapa académica intermedia de diseño y desarro
 Se deja registro de la caída del servicio de Flowable al momento de preparar la entrega, razón por la cual los modelos AS-IS y TO-BE fueron resguardados en estándar BPMN 2.0 mediante bpmn.io:
 
 ![Evidencia Flowable Caído](./Captura%20de%20pantalla%202026-10-24%20193442.png)
+
+Se deja registro de la caída del servicio de Flowable Trial lo que interfirio con las pruebas al no poder acceder a Flowable de manera local como fue explicado en los videos. esta captura corresponde al dia Domingo 08 de Noviembre del año en curso:
+
+![Evidencia Flowable Trial Caído](./Evidencia/servicio%20trial%20flowable%20en%20mantenimiento.png)
+
