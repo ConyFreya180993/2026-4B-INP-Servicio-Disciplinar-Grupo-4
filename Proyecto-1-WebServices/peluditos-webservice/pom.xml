@@ -24,7 +24,11 @@
     </properties>
 
     <dependencies>
-
+<!-- Jakarta REST con Jersey -->
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-jersey</artifactId>
+</dependency>
         <!-- Servicios web REST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
