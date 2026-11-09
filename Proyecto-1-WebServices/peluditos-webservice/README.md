@@ -1,114 +1,285 @@
-# Servicios Web – Peluditos Pet Chile
+Servicios Web REST – Peluditos Pet Chile
 
-## 1. Descripción del proyecto
+Integración de Plataformas – Servicio Disciplinar – Grupo 4
 
-Este proyecto corresponde al desarrollo de servicios web REST en Java para Peluditos Pet Chile, como parte de la asignatura Integración de Plataformas del Grupo 4.
+1. Descripción del componente
 
-Su objetivo es implementar servicios que permitan consultar información de clientes potenciales (leads), utilizando una base de datos MariaDB y preparando su futura integración con procesos BPMN mediante Flowable.
+El módulo de Servicios Web tiene como objetivo desarrollar y proporcionar servicios REST que permitan consultar información de clientes potenciales (leads) de Peluditos Pet Chile, apoyando la gestión comercial y el seguimiento de oportunidades de venta.
 
-## 2. Tecnologías utilizadas
+Este componente forma parte de una arquitectura orientada a procesos de negocio BPMN, cuya orquestación se realizará mediante Flowable OSS 7.2 y External Workers desarrollados por otros integrantes del equipo.
 
-- Java JDK 21
-- Spring Boot 4.1.2
-- Spring Web
-- Jakarta REST (JAX-RS)
-- Jersey
-- MariaDB
-- Maven
-- Visual Studio Code
-- Git y GitHub
+El servicio implementado permite consultar información almacenada en una base de datos MariaDB y obtener los resultados en formato JSON.
 
-## 3. Servicios web implementados
+Tecnologías utilizadas
 
-### Servicio de prueba
+Java JDK 21.
 
-**Método HTTP:** GET
+Spring Boot 4.1.2.
 
-**Endpoint original:** `/api/consultas/prueba`
+Jakarta REST (JAX-RS).
 
-Este servicio fue desarrollado inicialmente para comprobar el funcionamiento de la aplicación. Su disponibilidad debe verificarse con la configuración actual.
+Jersey.
 
-### Servicio de consulta de clientes
+Spring Web MVC.
 
-**Método HTTP:** GET
+Spring JDBC (JdbcTemplate).
 
-**Endpoint:** `/api/clientes`
+MariaDB.
 
-**Objetivo:** Consultar los clientes potenciales registrados en la base de datos MariaDB.
+Apache Maven.
 
-**Datos de entrada:** No requiere parámetros.
+Visual Studio Code.
 
-**Datos de salida:** Respuesta JSON con los registros obtenidos de la tabla `leads`.
+Git y GitHub.
 
-**Funcionamiento:** El controlador `ClientesController.java` utiliza `JdbcTemplate` para ejecutar una consulta SQL y recuperar los registros almacenados.
+2. Estado de avance y pruebas
 
-**Relación con el proceso de negocio:** Permite acceder a información de clientes potenciales para apoyar el seguimiento comercial y la futura integración con Flowable.
+Estado actual: IMPLEMENTADO Y PROBADO LOCALMENTE.
 
-## 4. Conexión a la base de datos
+Durante el desarrollo del segundo hito se realizaron las siguientes actividades:
 
-Se configuró una conexión local a MariaDB mediante el archivo `application.properties`.
+Configuración del proyecto Java utilizando Maven.
 
-- Base de datos: `peluditos_db`
-- Servidor: `127.0.0.1`
-- Puerto: `3306`
-- Tabla consultada: `leads`
-- Contraseña: configurada mediante la variable de entorno `PELUDITOS_DB_PASSWORD`
+Implementación de servicios web REST.
 
-Por seguridad, no se incluyen contraseñas reales en el repositorio.
+Incorporación de Jakarta REST mediante Jersey.
 
-## 5. Servicios web propuestos
+Configuración del acceso a MariaDB.
 
-| Servicio | Método y endpoint | Objetivo |
-|---|---|---|
-| Registrar consulta | POST `/api/consultas` | Registrar una nueva consulta |
-| Consultar solicitud | GET `/api/consultas/{id}` | Obtener información de una solicitud |
-| Registrar resultado | PATCH `/api/consultas/{id}/resultado` | Actualizar el resultado de una consulta |
+Implementación de un servicio de consulta de clientes potenciales.
 
-Estos servicios se encuentran propuestos para futuras etapas y deberán validarse con el equipo.
+Ejecución de pruebas locales desde Google Chrome.
 
-## 6. Ejecución del proyecto
+Verificación de respuestas JSON.
 
-Desde la carpeta `peluditos-webservice`, ejecutar en PowerShell:
+Incorporación del código fuente y evidencias al repositorio GitHub.
 
-`.\mvnw.cmd spring-boot:run`
+2.1. Servicio Jakarta REST
 
-Antes de iniciar, se requiere disponer de MariaDB, la base de datos correspondiente y la variable de entorno con la contraseña configurada.
+Archivo: ClientesResource.java
 
-Una vez iniciado el servidor, abrir:
+Método HTTP: GET
 
-`http://localhost:8080/api/clientes`
+Endpoint: /clientes
 
-## 7. Resultados obtenidos
+Objetivo: Comprobar el funcionamiento de un servicio desarrollado utilizando la especificación Jakarta REST.
 
-Se ejecutó correctamente la aplicación Spring Boot utilizando Java 21.
+Datos de entrada: No requiere parámetros.
 
-El servidor Tomcat integrado inició en el puerto 8080.
+Respuesta de prueba:
 
-Se comprobó el funcionamiento del endpoint `GET /api/clientes`, obteniendo una respuesta JSON con registros almacenados en MariaDB.
+{
+  "estado": "OK",
+  "mensaje": "Servicio Jakarta REST Peluditos funcionando"
+}
 
-## 8. Evidencias
+Este servicio fue probado localmente y respondió correctamente.
 
-En la carpeta `Evidencia` se incorporaron capturas correspondientes a:
+2.2. Servicio REST de consulta de clientes
 
-- Ejecución del servicio web REST.
-- Prueba del servicio Jakarta REST.
-- Consulta de clientes desde MariaDB mediante la API REST.
+Archivo: ClientesController.java
 
-## 9. Estado del desarrollo
+Método HTTP: GET
 
-**Implementado y probado:**
-- Configuración del entorno Java y Spring Boot.
-- Implementación de servicios REST.
-- Configuración de Jersey y Jakarta REST.
-- Conexión a MariaDB.
-- Consulta de registros de la tabla `leads`.
-- Obtención de respuestas JSON.
-- Incorporación de evidencias en GitHub.
+Endpoint: /api/clientes
 
-**Pendiente de integración o desarrollo:**
-- Validación de los endpoints propuestos.
-- Integración con External Workers.
-- Integración funcional con Flowable.
-- Desarrollo de servicios adicionales para el seguimiento y fidelización de clientes.
+Objetivo: Consultar los registros almacenados en la tabla leads de MariaDB.
 
-El proyecto continuará desarrollándose colaborativamente por los integrantes del Grupo 4.
+Datos de entrada: No requiere parámetros.
+
+Datos de salida: Listado de registros en formato JSON.
+
+Consulta SQL utilizada:
+
+SELECT * FROM leads;
+
+El servicio utiliza JdbcTemplate para recuperar la información almacenada en la base de datos.
+
+Durante las pruebas locales se obtuvo una respuesta JSON con tres registros de clientes potenciales, comprobando el funcionamiento de la consulta.
+
+2.3. Configuración de base de datos
+
+Se configuró la conexión local mediante el archivo application.properties.
+
+Motor: MariaDB.
+
+Base de datos: peluditos_db.
+
+Servidor: 127.0.0.1.
+
+Puerto: 3306.
+
+Tabla consultada: leads.
+
+La contraseña de la base de datos se obtiene mediante la variable de entorno PELUDITOS_DB_PASSWORD, evitando publicar credenciales directamente en GitHub.
+
+2.4. Ejecución del proyecto
+
+Para ejecutar el servicio, se requiere Java 21, MariaDB y la base de datos correspondiente.
+
+Desde la carpeta peluditos-webservice, ejecutar en PowerShell:
+
+.\mvnw.cmd clean compile
+.\mvnw.cmd spring-boot:run
+
+Una vez iniciado el servidor Tomcat en el puerto 8080, comprobar los servicios desde el navegador.
+
+Consulta de clientes:
+
+http://localhost:8080/api/clientes
+
+Servicio Jakarta REST:
+
+http://localhost:8080/jakarta/clientes
+
+La segunda dirección corresponde a la configuración actual de spring.jersey.application-path=/jakarta y debe verificarse nuevamente después del cambio de configuración.
+
+3. Evidencias del desarrollo
+
+Las capturas de respaldo se encuentran en la carpeta:
+
+./Evidencia
+
+Archivos incorporados:
+
+Prueba_Jakarta_REST.png: evidencia de la respuesta del servicio Jakarta REST.
+
+Prueba_API_REST_MariaDB.png: evidencia de la consulta de clientes almacenados en MariaDB.
+
+Estas evidencias respaldan las pruebas locales realizadas durante el segundo hito.
+
+4. Dificultades técnicas y observaciones
+
+Durante el desarrollo del módulo se presentaron dificultades técnicas que requirieron realizar ajustes en la configuración y ejecución del proyecto.
+
+4.1. Error HTTP 404 en los servicios REST
+
+Durante las primeras pruebas, el endpoint /api/clientes devolvía un error HTTP 404, aunque la aplicación Spring Boot iniciaba correctamente.
+
+Se revisaron los controladores, las rutas y la configuración de Jersey y Spring MVC.
+
+Solución aplicada:
+
+Se realizaron ajustes en application.properties para configurar Jersey como filtro y establecer una ruta de aplicación independiente.
+
+Posteriormente, se reinició la aplicación y se comprobó que /api/clientes respondía correctamente con los registros almacenados en MariaDB.
+
+Resultado: Dificultad solucionada y servicio probado localmente.
+
+4.2. Configuración de dependencias Java
+
+Se realizaron ajustes en pom.xml para incorporar las dependencias necesarias para el funcionamiento de Jakarta REST, Jersey, Spring JDBC y MariaDB.
+
+Se verificó la compilación del proyecto mediante Maven.
+
+Resultado: Compilación exitosa.
+
+4.3. Ejecución del proyecto desde Visual Studio Code
+
+Durante las pruebas se presentaron dificultades al ejecutar Maven desde una carpeta distinta a la ubicación del proyecto.
+
+Se corrigió la ruta de trabajo de la terminal y posteriormente se ejecutó correctamente la aplicación.
+
+Resultado: Aplicación iniciada en el puerto 8080.
+
+4.4. Integración con Flowable y External Workers
+
+La integración del módulo de Servicios Web con Flowable OSS 7.2 y los External Workers corresponde a otros componentes desarrollados por integrantes del Grupo 4.
+
+El servicio de consulta de clientes se encuentra implementado y probado de manera local.
+
+Estado: Integración entre módulos pendiente de validación conjunta.
+
+No se declara una integración completa con Flowable mientras no existan pruebas y evidencias que la respalden.
+
+5. Servicios web propuestos
+
+Se consideran los siguientes servicios para futuras etapas del proyecto:
+
+Servicio
+
+Método y endpoint
+
+Objetivo
+
+Estado
+
+Consultar clientes
+
+GET /api/clientes
+
+Obtener registros de leads
+
+Probado localmente
+
+Registrar consulta
+
+POST /api/consultas
+
+Registrar una consulta comercial
+
+Propuesto
+
+Consultar solicitud
+
+GET /api/consultas/{id}
+
+Consultar una solicitud específica
+
+Propuesto
+
+Registrar resultado
+
+PATCH /api/consultas/{id}/resultado
+
+Actualizar el resultado de una consulta
+
+Propuesto
+
+Los servicios propuestos deberán validarse con el equipo de acuerdo con el proceso BPMN y los requerimientos del negocio.
+
+6. Relación con la arquitectura del proyecto
+
+El módulo de Servicios Web permite consultar información de clientes potenciales almacenada en MariaDB.
+
+La arquitectura contempla que los procesos BPMN ejecutados mediante Flowable OSS 7.2 puedan interactuar con estos servicios a través de External Workers.
+
+Componentes considerados:
+
+Flowable OSS 7.2: motor de procesos BPMN.
+
+External Workers: ejecución de tareas automáticas e integración.
+
+Servicios Web REST: exposición de operaciones para consultar información.
+
+MariaDB: almacenamiento de datos.
+
+Aplicación web: interfaz de interacción con los usuarios.
+
+La comunicación completa entre estos componentes deberá comprobarse mediante pruebas de integración.
+
+7. Pendientes para la siguiente etapa
+
+Coordinar las pruebas de integración con el módulo External Worker.
+
+Validar la comunicación con Flowable OSS 7.2.
+
+Implementar los endpoints adicionales requeridos por el proceso.
+
+Realizar pruebas integrales del flujo BPMN.
+
+Incorporar nuevas evidencias de funcionamiento.
+
+Completar la documentación técnica de integración.
+
+8. Conclusión
+
+Durante el segundo hito del proyecto Peluditos Pet Chile se logró implementar y probar localmente un módulo de Servicios Web REST desarrollado en Java.
+
+Se comprobó el funcionamiento de Jakarta REST mediante Jersey y la consulta de registros almacenados en MariaDB.
+
+Las dificultades de configuración y ejecución fueron abordadas mediante ajustes técnicos, permitiendo obtener resultados funcionales y verificables.
+
+El módulo constituye un avance para la integración posterior con Flowable OSS 7.2 y los External Workers, cuya validación se realizará de manera colaborativa con los integrantes del Grupo 4.
+
+Estado final del módulo: IMPLEMENTADO Y PROBADO LOCALMENTE.
