@@ -1,4 +1,3 @@
-:::writing{variant="document" id="62841"}
 # Servicios Web – Peluditos Pet Chile
 
 ## 1. Descripción del proyecto
@@ -113,4 +112,3 @@ En la carpeta `Evidencia` se incorporaron capturas correspondientes a:
 - Desarrollo de servicios adicionales para el seguimiento y fidelización de clientes.
 
 El proyecto continuará desarrollándose colaborativamente por los integrantes del Grupo 4.
-:::
