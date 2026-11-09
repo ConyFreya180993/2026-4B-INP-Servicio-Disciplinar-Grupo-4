@@ -1,86 +1,116 @@
-# Web Services – Peluditos Pet Chile
+:::writing{variant="document" id="62841"}
+# Servicios Web – Peluditos Pet Chile
 
 ## 1. Descripción del proyecto
 
-Este proyecto corresponde al desarrollo inicial de un Web Service REST en Java para Peluditos Pet Chile, realizado como parte del Servicio Disciplinar del Grupo 4.
+Este proyecto corresponde al desarrollo de servicios web REST en Java para Peluditos Pet Chile, como parte de la asignatura Integración de Plataformas del Grupo 4.
 
-Su objetivo es comprobar el funcionamiento de un servicio web que posteriormente podrá integrarse con el proceso BPMN y el motor Flowable.
+Su objetivo es implementar servicios que permitan consultar información de clientes potenciales (leads), utilizando una base de datos MariaDB y preparando su futura integración con procesos BPMN mediante Flowable.
 
 ## 2. Tecnologías utilizadas
 
 - Java JDK 21
 - Spring Boot 4.1.2
 - Spring Web
+- Jakarta REST (JAX-RS)
+- Jersey
+- MariaDB
 - Maven
 - Visual Studio Code
-- GitHub
+- Git y GitHub
 
-## 3. Web Service implementado
+## 3. Servicios web implementados
 
-**Nombre:** Servicio de prueba Peluditos Pet Chile.
+### Servicio de prueba
 
 **Método HTTP:** GET
 
-**Endpoint:** `/api/consultas/prueba`
+**Endpoint original:** `/api/consultas/prueba`
 
-**Objetivo:** Comprobar que el servicio web funciona correctamente y responde a una solicitud HTTP.
+Este servicio fue desarrollado inicialmente para comprobar el funcionamiento de la aplicación. Su disponibilidad debe verificarse con la configuración actual.
+
+### Servicio de consulta de clientes
+
+**Método HTTP:** GET
+
+**Endpoint:** `/api/clientes`
+
+**Objetivo:** Consultar los clientes potenciales registrados en la base de datos MariaDB.
 
 **Datos de entrada:** No requiere parámetros.
 
-**Datos de salida:** Respuesta JSON con un estado y un mensaje.
+**Datos de salida:** Respuesta JSON con los registros obtenidos de la tabla `leads`.
 
-**Respuesta obtenida:**
+**Funcionamiento:** El controlador `ClientesController.java` utiliza `JdbcTemplate` para ejecutar una consulta SQL y recuperar los registros almacenados.
 
-```json
-{
-  "estado": "OK",
-  "mensaje": "Web Service Peluditos funcionando"
-}
-```
+**Relación con el proceso de negocio:** Permite acceder a información de clientes potenciales para apoyar el seguimiento comercial y la futura integración con Flowable.
 
-**Relación con el proceso de negocio:** Permite verificar la conectividad del servicio antes de integrarlo con un External Worker de Flowable.
+## 4. Conexión a la base de datos
 
-## 4. Web Services propuestos
+Se configuró una conexión local a MariaDB mediante el archivo `application.properties`.
 
-Estos servicios se proponen inicialmente para apoyar la gestión de consultas de clientes.
+- Base de datos: `peluditos_db`
+- Servidor: `127.0.0.1`
+- Puerto: `3306`
+- Tabla consultada: `leads`
+- Contraseña: configurada mediante la variable de entorno `PELUDITOS_DB_PASSWORD`
 
-| Servicio | Método y endpoint | Entrada | Salida |
-|---|---|---|---|
-| Registrar consulta | POST /api/consultas | Datos del cliente y consulta | Identificador y estado |
-| Consultar solicitud | GET /api/consultas/{id} | Identificador | Datos y estado |
-| Registrar resultado | PATCH /api/consultas/{id}/resultado | Identificador y resultado | Estado actualizado |
+Por seguridad, no se incluyen contraseñas reales en el repositorio.
 
-Estos endpoints deberán validarse con el equipo y podrán modificarse durante el desarrollo.
+## 5. Servicios web propuestos
 
-## 5. Ejecución del proyecto
+| Servicio | Método y endpoint | Objetivo |
+|---|---|---|
+| Registrar consulta | POST `/api/consultas` | Registrar una nueva consulta |
+| Consultar solicitud | GET `/api/consultas/{id}` | Obtener información de una solicitud |
+| Registrar resultado | PATCH `/api/consultas/{id}/resultado` | Actualizar el resultado de una consulta |
 
-Desde la carpeta `peluditos-webservice`, ejecutar en Windows:
+Estos servicios se encuentran propuestos para futuras etapas y deberán validarse con el equipo.
 
-```powershell
-.\mvnw.cmd spring-boot:run
-```
+## 6. Ejecución del proyecto
 
-Después abrir en el navegador:
+Desde la carpeta `peluditos-webservice`, ejecutar en PowerShell:
 
-http://localhost:8080/api/consultas/prueba
+`.\mvnw.cmd spring-boot:run`
 
-## 6. Resultado obtenido
+Antes de iniciar, se requiere disponer de MariaDB, la base de datos correspondiente y la variable de entorno con la contraseña configurada.
+
+Una vez iniciado el servidor, abrir:
+
+`http://localhost:8080/api/clientes`
+
+## 7. Resultados obtenidos
 
 Se ejecutó correctamente la aplicación Spring Boot utilizando Java 21.
 
-El servidor Tomcat integrado inició en el puerto 8080 y el Web Service respondió correctamente a una solicitud realizada desde Google Chrome.
+El servidor Tomcat integrado inició en el puerto 8080.
 
-Se comprobó que la respuesta contiene un mensaje de funcionamiento y el estado OK.
+Se comprobó el funcionamiento del endpoint `GET /api/clientes`, obteniendo una respuesta JSON con registros almacenados en MariaDB.
 
-## 7. Estado del desarrollo
+## 8. Evidencias
 
-- [x] Configuración del entorno Java.
-- [x] Creación del proyecto Spring Boot.
-- [x] Implementación del Web Service REST de prueba.
-- [x] Ejecución y verificación del endpoint.
-- [x] Documentación inicial de los servicios propuestos.
-- [ ] Integración con External Worker.
-- [ ] Integración con Flowable.
-- [ ] Desarrollo de los servicios definitivos.
+En la carpeta `Evidencia` se incorporaron capturas correspondientes a:
 
-Las integraciones pendientes se realizarán en coordinación con el equipo del Grupo 4.
+- Ejecución del servicio web REST.
+- Prueba del servicio Jakarta REST.
+- Consulta de clientes desde MariaDB mediante la API REST.
+
+## 9. Estado del desarrollo
+
+**Implementado y probado:**
+- Configuración del entorno Java y Spring Boot.
+- Implementación de servicios REST.
+- Configuración de Jersey y Jakarta REST.
+- Conexión a MariaDB.
+- Consulta de registros de la tabla `leads`.
+- Obtención de respuestas JSON.
+- Incorporación de evidencias en GitHub.
+
+**Pendiente de integración o desarrollo:**
+- Validación de los endpoints propuestos.
+- Integración con External Workers.
+- Integración funcional con Flowable.
+- Desarrollo de servicios adicionales para el seguimiento y fidelización de clientes.
+
+El proyecto continuará desarrollándose colaborativamente por los integrantes del Grupo 4.
+:::
