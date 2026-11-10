@@ -1,4 +1,3 @@
-```php
 <?php
 // ======================================================
 // EXTERNAL WORKER - PELUDITOS PET CHILE
