@@ -1,61 +1,76 @@
-# Peluditos Pet Chile — Integración de Plataformas
+# Peluditos Pet Chile — Sistema de Gestión de Leads y Fidelización (Grupo 4)-Entrega 2
 
-- **Servicio Disciplinar:** Grupo 4
-- **Asignatura:** Integración de Plataformas — IPLACEX
-- **Etapa:** Entrega 1 — Diagnóstico, propuesta de solución y avances iniciales del prototipo
+> **Estado del repositorio:** Versión de cierre Entrega 2 (09/11/2026). Este monorepo consolida la arquitectura UML de despliegue y componentes, el modelamiento de procesos BPMN 2.0, la base de datos relacional en MariaDB (`peluditos_db`), los servicios web en Java 21 con Jakarta REST (Jersey) y Spring JDBC, el External Worker en PHP y la Bandeja de Tareas Web.
 
 ---
 
-## 1. Descripción y Alcance Inicial
-Este repositorio reúne los avances del proyecto académico para **Peluditos Pet Chile** (repostería artesanal para mascotas), cuyo objetivo es ordenar el registro de consultas comerciales (*leads*), su seguimiento y la detección de oportunidades de fidelización mediante **BPMN 2.0 (Flowable)**, **Java REST (Spring Boot)** y **MariaDB**.
+## 1. Índice del Monolito y Matriz de Estados (Cierre Entrega 2)
 
-Esta primera entrega aborda el levantamiento del proceso actual (AS-IS), el diseño de procesos propuestos (TO-BE), el esquema de arquitectura preliminar y la preparación de los componentes técnicos base de manera modular e independiente, previo a su conexión general en las siguientes etapas.
+Siguiendo nuestro criterio de trazabilidad técnica (**"propuesto no significa implementado"**), la siguiente tabla resume el alcance real comprobado por cada módulo y la ubicación de sus evidencias:
 
----
-
-## 2. Modalidad de Trabajo Horizontal y Asincrónica
-El equipo funciona bajo un esquema de **colaboración horizontal entre pares**, donde la distribución de carpetas responde a una división práctica de tareas técnicas y no a una jerarquía formal. 
-
-Debido a las realidades individuales de los integrantes —que combinan turnos laborales, responsabilidades familiares/de cuidado y carga académica paralela—, el desarrollo se realiza de forma **principalmente asincrónica**, utilizando este repositorio y acuerdos puntuales de coordinación para consolidar los avances de cada área.
-
-| Integrante | Usuario GitHub | Área de Contribución (Entrega 1) |
-| :--- | :--- | :--- |
-| **Constanza Núñez** | `ConyFreya180993` | Documentación de actas y diseño de arquitectura preliminar. |
-| **Gabriel Arellano** | `avockato` | Diseño del modelo de datos y script SQL inicial en MariaDB. |
-| **Camila Vega** | `Camila678` | Desarrollo, documentación y prueba local del servicio web Java REST. |
-| **José Loyola** | `jloyola97` | Modelamiento BPMN 2.0 (AS-IS y TO-BE) y definición preliminar de formularios. |
+| Carpeta / Módulo | Responsable | Estado al Cierre E2 | Artefactos Implementados y Evidencias |
+| :--- | :--- | :--- | :--- |
+| [`/Arquitectura`](./Arquitectura) | Constanza Núñez | **Completado** | Diagrama UML (`Arquitectura-entrega-2-final.png`, `.svg`, `.drawio`), PPT de evolución desde E1 y [`README.md`](./Arquitectura/README.md). |
+| [`/Base-de-Datos`](./Base-de-Datos) | Gabriel Arellano | **Implementado e Integrado** | Script [`esquema_peluditos.sql`](./Base-de-Datos/esquema_peluditos.sql) (`peluditos_db` separada de `flowable_db` con tablas `leads`, `pet`, `seguimientos`, `fidelizacion`) y [`/Evidencia`](./Base-de-Datos/Evidencia). |
+| [`/Proyecto-3-WebApp`](./Proyecto-3-WebApp) | Gabriel Arellano | **Implementado e Integrado** | Bandeja de Tareas Web (HTML/CSS/JS) y [`api/`](./Proyecto-3-WebApp/api) en PHP conectada a MariaDB y Flowable REST (`Process_1pot1gs`). Capturas `04` a `08` en [`/evidencia`](./Proyecto-3-WebApp/evidencia). |
+| [`/Proyecto-2-ExternalWorker`](./Proyecto-2-ExternalWorker) | Gabriel Arellano | **Implementado e Integrado** | [`worker.php`](./Proyecto-2-ExternalWorker/worker.php) (`peluditos-worker-1`) haciendo *HTTP Polling* sobre el tópico `sincronizar-cliente` y validando `id_lead` en MariaDB. Ver [`/evidencia`](./Proyecto-2-ExternalWorker/evidencia). |
+| [`/Proyecto-1-WebServices`](./Proyecto-1-WebServices) | Camila Vega | **Implementado y Probado Localmente** | Proyecto Java 21 con Jakarta REST / Jersey (`/jakarta/clientes`), consulta JDBC a tabla `leads` en MariaDB (`/api/clientes`) y endpoint `/api/consultas/prueba`. Capturas `Prueba_Jakarta_REST.png` y `Prueba_API_REST_MariaDB.png` en [`/Evidencia`](./Proyecto-1-WebServices/Evidencia). |
+| [`/BPMN`](./BPMN) | José Loyola / Gabriel Arellano | **Implementación Parcial** | [`TO-BE.bpmn`](./BPMN/TO-BE.bpmn) ejecutado localmente en Tomcat/Flowable REST y [`modelo to-be+fidelizacion.bpmn`](./BPMN/modelo%20to-be+fidelizacion.bpmn) validado sin errores. Respaldo de contingencia en [`/BPMN/Evidencia`](./BPMN/Evidencia). |
+| [`/Videos/Entrega-2`](./Videos/Entrega-2) | Equipo Grupo 4 | **Completado** | Enlaces a defensas técnicas modulares en [`/Videos/Entrega-2/Tecnico/README.md`](./Videos/Entrega-2/Tecnico/README.md). |
+| [`/Actas`](./Actas) | Constanza Núñez | **Completado** | Actas de coordinación asíncrona, asignación de tareas y cierre de control de calidad. |
 
 ---
 
-## 3. Estructura del Repositorio y Avances por Componente
+## 2. Arquitectura del Sistema y Capas de Integración
 
-- **`Actas/`:** Registro de reuniones, acuerdos de coordinación y seguimiento del equipo.
-- **`Arquitectura/`:** Diagrama conceptual de primera versión (`.png`), archivo editable (`.pptx`) y detalle de los 5 bloques del sistema (Encargada, Flowable, Worker externo, Servicio Java REST y MariaDB).
-- **`BPMN/`:** Modelos `AS-IS`, `TO-BE` (gestión de leads) y `TO-BE` (fidelización) en formatos `.bpmn` y `.svg` elaborados en `bpmn.io`, junto con su `README.md` descriptivo.
-- **`Base-de-Datos/`:** Script `esquema_peluditos.sql` para MariaDB (`peluditos_db`) con las tablas relacionadas `leads` y `seguimientos`, datos de prueba y consulta `INNER JOIN`.
-- **`Proyecto-1-WebServices/`:** Proyecto Spring Boot (`peluditos-webservice`) en Java 21 con el endpoint de prueba `GET /api/consultas/prueba` operativo en el puerto `8080`, su `README.md` y captura de evidencia en `/Evidencia`.
-- **`Proyecto-2-ExternalWorker/` y `Proyecto-3-WebApp/`:** Directorios reservados en la estructura para las fases posteriores de conexión y aplicación web.
-- **`Videos/`:** Directorio destinado a las presentaciones audiovisuales de cierre de etapa.
+![Diagrama UML de Despliegue y Componentes - Entrega 2](./Arquitectura/Arquitectura-entrega-2-final.png)
 
----
+El sistema evoluciona a partir de la retroalimentación de la Entrega 1 hacia un diseño desacoplado en cuatro capas principales:
 
-## 4. Contingencia Técnica (Disponibilidad de Flowable)
-Durante la preparación de esta entrega, la plataforma **Flowable Cloud** presentó indisponibilidad temporal por mantenimiento del proveedor (evidencia resguardada en `BPMN/`). Para no detener el avance asincrónico del grupo, se acordó resguardar el modelado en estándar BPMN 2.0 mediante `bpmn.io` y validar localmente el servicio REST y la base de datos de forma independiente.
-
----
-
-## 5. Guía Rápida de Revisión
-1. **Arquitectura, Actas y BPMN:** Visualizar directamente desde GitHub los archivos Markdown, imágenes `.png` y diagramas `.svg` en sus respectivas carpetas (o abrir los archivos `.bpmn` en `bpmn.io`).
-2. **Servicio Web Java REST (requiere JDK 21):**
-   - Ubicarse en `Proyecto-1-WebServices/peluditos-webservice/` y ejecutar en terminal: `.\mvnw.cmd spring-boot:run`
-   - Consultar en el navegador: `http://localhost:8080/api/consultas/prueba` (respuesta esperada: `{"mensaje":"Web Service Peluditos funcionando","estado":"OK"}`).
-3. **Base de Datos MariaDB:**
-   - Importar o ejecutar `Base-de-Datos/esquema_peluditos.sql` en un entorno local (ej. XAMPP / phpMyAdmin) para generar las tablas y comprobar el `INNER JOIN`.
+1. **Capa de Presentación y Bandeja Web (`Proyecto-3-WebApp` — Verde):** Interfaz web ejecutada sobre Apache (XAMPP) cuyos servicios PHP (`registrar_lead.php`, `listar_seguimientos.php`, `actualizar_seguimiento.php`, `gestionar_fidelizacion.php`, `listar_procesos.php`) insertan prospectos en MariaDB e inician instancias del proceso BPMN en la API REST de Flowable (`Flujo 1`) enviando la variable `id_lead`.
+2. **Capa de Orquestación BPMN (`BPMN` — Naranjo):**
+   - **Ejecución Local:** El proceso `TO-BE.bpmn` (`Process_1pot1gs`) corre sobre Apache Tomcat consumiendo `flowable_db` (`Flujo 5`), gestionando tareas de usuario y publicando trabajos externos en el tópico `sincronizar-cliente`.
+   - **Modelado Extendido (Leads + Fidelización):** Los archivos `modelo to-be+fidelizacion.bpmn` y `TO-BE fidelizacion.bpmn` incorporan la rama de descarte (`Registrar Venta no Realizada` / tópico `registrar resultado lead`) y el proceso independiente activado por mensaje (`iniciar campaña` con los tópicos `registrar datos campaña iniciada` y `registrar si cliente muestra interes en la oferta`).
+3. **Capa de Workers y Servicios Web REST (`Proyecto-2-ExternalWorker` en Verde / `Proyecto-1-WebServices` en Naranjo):**
+   - **External Worker (`worker.php`):** Realiza *HTTP Polling* (`Flujo 3`) sobre `/external-job-api/acquire/jobs` para el tópico `sincronizar-cliente`, recupera `id_lead`, verifica la existencia del cliente en `peluditos_db` y completa la tarea en Flowable.
+   - **Servicios Web REST en Java 21 (`Proyecto-1-WebServices`):** Configurados en el puerto `8080` con **Jakarta REST (Jersey)** configurado como filtro en `/jakarta/clientes` (`ClientesResource.java`) y **Spring JDBC (`JdbcTemplate`)** en `/api/clientes` (`ClientesController.java`) consultando `SELECT * FROM leads` sobre `peluditos_db` con credenciales externalizadas (`PELUDITOS_DB_PASSWORD`). Queda planificada para la Entrega 3 la invocación conjunta entre el Worker y los endpoints REST propuestos (`POST /api/consultas`, `GET /api/consultas/{id}`, `PATCH /api/consultas/{id}/resultado`).
+4. **Capa de Persistencia Relacional (`Base-de-Datos` — Azul):** Esquema comercial `peluditos_db` en MariaDB (puerto `3306`, motor `InnoDB`, `utf8mb4`), estrictamente separado de la base interna `flowable_db`.
 
 ---
 
-## 6. Estimación General de Próximos Pasos
-Tras el cierre de esta primera entrega, el equipo estima abordar de manera progresiva las siguientes tareas según la disponibilidad de las plataformas y los tiempos del bimestre:
-- Grabación y subida de los videos de presentación una vez consolidada la revisión de esta entrega.
-- Importación de los diagramas `.bpmn` y configuración de formularios cuando el servicio de Flowable se encuentre estable.
-- Alineación de campos entre los módulos e inicio de las pruebas de conexión (External Worker, API REST y MariaDB) para las entregas siguientes.
+## 3. Procesos de Negocio (AS-IS vs. TO-BE)
+
+| Proceso / Problema | Situación Actual (AS-IS) | Situación Implementada / Propuesta (TO-BE) | Beneficio Logrado |
+| :--- | :--- | :--- | :--- |
+| **1. Captura de Leads** | Consultas dispersas en historiales de WhatsApp, Instagram y Facebook. | Registro centralizado en la Bandeja Web (`Proyecto-3-WebApp`) que persiste en `leads` e inicia instancia en Flowable. | Trazabilidad completa de prospectos y vinculación mediante `id_lead`. |
+| **2. Seguimiento Comercial** | Pérdida de oportunidades por falta de seguimiento sistemático. | Gestión de estados (`Pendiente`, `Venta Concretada`, `Venta No Concretada`) y sincronización vía External Worker. | Visibilidad del embudo comercial y cierre controlado de instancias BPMN. |
+| **3. Fechas Clave y Fidelización** | Sin registro estructurado de cumpleaños de mascotas ni campañas. | Proceso independiente por evento de mensaje (`iniciar campaña`) y tablas relacionales `pet` y `fidelizacion`. | Gestión de campañas (`Cumpleaños`, `Celebración`) con estados `Programado` y `Enviado`. |
+
+---
+
+## 4. Estructura de la Base de Datos Comercial (`peluditos_db`)
+
+Implementada en [`Base-de-Datos/esquema_peluditos.sql`](./Base-de-Datos/esquema_peluditos.sql):
+
+- **`leads`:** `id_lead` (PK, `AUTO_INCREMENT`), `nombre_cliente`, `contacto_cliente`, `canal_origen` (`WhatsApp`, `Instagram`, `Facebook`), `fecha_registro`.
+- **`pet`:** `id_pet` (PK), `id_lead` (FK a `leads`), `nombre_mascota`, `tipo_pet` (`Gato`, `Perro`), `cumpleanos` (`DATE`).
+- **`seguimientos`:** `id_seguimiento` (PK), `id_pet` (FK a `pet`), `consulta`, `tamano_pastel` (`Pequeño`, `Mediano`, `Grande`), `resultado_consulta` (`Venta Concretada`, `Venta No Concretada`, `Pendiente`), `fecha_registro_consulta`, `fecha_entrega`.
+- **`fidelizacion`:** `id_fidelizacion` (PK), `id_pet` (FK a `pet`), `fecha_evento`, `tipo_campana` (`Cumpleaños`, `Celebración`), `estado_envio` (`Programado`, `Enviado`).
+
+---
+
+## 5. Registro de Dificultades Técnicas y Soluciones Aplicadas
+
+1. **Coexistencia de Jakarta REST (Jersey) y Spring MVC (`Proyecto-1-WebServices`):**
+   - *Dificultad:* Error HTTP 404 inicial al exponer simultáneamente controladores REST y recursos de Jersey.
+   - *Solución:* Se configuró Jersey como filtro bajo el prefijo `spring.jersey.application-path=/jakarta` en `application.properties`, permitiendo operar `/jakarta/clientes` junto con la consulta JDBC a MariaDB en `/api/clientes` (ver [`Proyecto-1-WebServices/Evidencia`](./Proyecto-1-WebServices/Evidencia)).
+2. **Instalación Local de Flowable OSS 7.2 y Caída de Portal Trial (`BPMN`):**
+   - *Dificultad:* Se presentaron errores de dependencias al instalar Flowable OSS 7.2 en uno de los equipos locales, sumado a la ventana de mantenimiento del servicio *Flowable Trial* el domingo 08/11/2026 (respaldado en [`BPMN/Evidencia/servicio trial flowable en mantenimiento.png`](./BPMN/Evidencia/servicio%20trial%20flowable%20en%20mantenimiento.png)).
+   - *Solución:* Se resguardaron los modelos extendidos en estándar XML BPMN 2.0 (`modelo to-be+fidelizacion.bpmn`) y se ejecutaron las pruebas de integración del External Worker y la WebApp sobre el entorno local Apache Tomcat/XAMPP del equipo utilizando `TO-BE.bpmn`.
+
+---
+
+## 6. Videos de Defensa Técnica (Entrega 2)
+
+Los enlaces a las presentaciones técnicas modulares de cada integrante se encuentran centralizados en:
+- 👉 **[`Videos/Entrega-2/Tecnico/README.md`](./Videos/Entrega-2/Tecnico/README.md)**
