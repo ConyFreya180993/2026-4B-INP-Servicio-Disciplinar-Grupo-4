@@ -1,5 +1,7 @@
 # Videos Técnicos — Entrega 3 (Grupo 4)
 
+**¡Importante!: esto es una estructura propuesta, no implementada
+
 > **Instrucciones de la rúbrica (Sección 6.2):** Todos los integrantes deben participar oralmente (máximo 5 minutos por persona; recomendado 2 a 3 minutos). Recuerden configurar el enlace de Google Drive en **"Cualquier persona con el enlace (Lector)"** antes de pegarlo aquí.
 
 ## Enlaces por Bloque Técnico
