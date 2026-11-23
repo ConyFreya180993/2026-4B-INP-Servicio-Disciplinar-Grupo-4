@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Peluditos Pet Chile</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <header>
+        <h1>Peluditos Pet Chile</h1>
+        <p>Sistema de gestión de clientes y tareas</p>
+    </header>
+
+    <main>
+
+        <h2>Bandeja de Tareas</h2>
+
+        <!-- REGISTRO DE CLIENTES POTENCIALES -->
+        <section>
+
+            <h3>Registrar clientes potenciales</h3>
+            <p>Ingresar nuevos clientes</p>
+
+            <form id="form-lead">
+
+                <div>
+                    <label for="nombre_cliente">
+                        Nombre del Cliente:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nombre_cliente"
+                        name="nombre_cliente"
+                        placeholder="Juan Pérez"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="contacto_cliente">
+                        Número de contacto:
+                    </label>
+
+                    <div class="telefono-contenedor">
+
+                        <span class="prefijo">+569</span>
+
+                        <input
+                            type="tel"
+                            id="contacto_cliente"
+                            name="contacto_cliente"
+                            placeholder="12345678"
+                            pattern="[0-9]{8}"
+                            maxlength="8"
+                            inputmode="numeric"
+                            required
+                        >
+
+                    </div>
+                </div>
+
+                <div>
+                    <label for="canal_origen">
+                        Canal de origen:
+                    </label>
+
+                    <select
+                        id="canal_origen"
+                        name="canal_origen"
+                        required
+                    >
+                        <option value="" disabled selected>
+                            Seleccione un canal
+                        </option>
+
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Facebook">Facebook</option>
+
+                    </select>
+                </div>
+
+                <button type="submit">
+                    Registrar Cliente
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- SEGUIMIENTOS COMERCIALES -->
+        <section>
+
+            <h3>Seguimientos comerciales</h3>
+
+            <p>
+                Revisar consultas y registrar resultados de ventas.
+            </p>
+
+            <h4>Consultas pendientes</h4>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Mascota</th>
+                        <th>Consulta</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+
+                <!-- Las filas se cargarán desde MariaDB -->
+                <tbody id="tabla-seguimientos">
+                </tbody>
+
+            </table>
+
+        </section>
+
+
+        <!-- FIDELIZACIÓN DE CLIENTES -->
+        <section>
+
+            <h3>Fidelización de clientes</h3>
+
+            <p>
+                Gestionar campañas de cumpleaños y celebraciones.
+            </p>
+
+            <h4>Campañas programadas</h4>
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>Cliente</th>
+                        <th>Mascota</th>
+                        <th>Fecha del evento</th>
+                        <th>Tipo de campaña</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <!-- Las campañas se cargarán desde MariaDB -->
+                <tbody id="tabla-fidelizacion">
+                </tbody>
+
+            </table>
+
+        </section>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
