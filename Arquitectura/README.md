@@ -4,7 +4,7 @@
 
 ## 1. Arquitectura actual y límites de despliegue
 
-
+![Diagrama UML de Despliegue y Componentes — Entrega 3](./Arquitectura-entrega-3-final.png)
 
 El sistema se organiza en cuatro capas funcionales, diferenciando el nodo cliente (navegador web) del entorno de ejecución y despliegue configurable:
 
