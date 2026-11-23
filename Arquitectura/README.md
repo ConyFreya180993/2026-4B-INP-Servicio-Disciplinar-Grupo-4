@@ -1,35 +1,33 @@
-README arquitectura entrega 
-# Arquitectura y seguimiento de la Entrega 2
+# Arquitectura y Seguimiento — Entrega 3
 
-> **Estado del documento:** Versión de cierre Entrega 2 (09/11/2026). El diagrama y la matriz reflejan el estado real de implementación y pruebas alcanzado por el equipo a partir de las evidencias del monorepo.
+> **Estado del documento:** Versión de cierre de Entrega 3 (23/11/2026). El diagrama y la matriz reflejan la evolución hacia una integración desacoplada (`Worker` → `Servicio Web Jakarta REST` → `MariaDB`), la separación de puertos (`8080` y `8081`) y la configuración externalizada mediante variables de entorno.
 
-## 1. Arquitectura de referencia y estado de integración
+## 1. Arquitectura actual y límites de despliegue
 
-![Diagrama UML de Despliegue y Componentes - Entrega 2](./Arquitectura-entrega-2-final.png)
+![Diagrama UML de Despliegue y Componentes — Entrega 3](./Arquitectura-entrega-3-final.png)
 
-El sistema se organiza en cuatro capas principales, combinando la arquitectura objetivo con las adaptaciones técnicas implementadas en esta entrega:
+El sistema se organiza en cuatro capas funcionales, diferenciando el nodo cliente (navegador web) del entorno de ejecución y despliegue configurable:
 
-1. **Bandeja de Tareas Web (`Proyecto-3-WebApp` — Implementado e Integrado):** Interfaz web en HTML, CSS, JavaScript y servicios PHP (`api/registrar_lead.php`, `listar_seguimientos.php`, `actualizar_seguimiento.php`, `gestionar_fidelizacion.php`, `listar_procesos.php`) ejecutada en Apache/XAMPP. Registra clientes potenciales, inicia instancias del proceso BPMN (`Process_1pot1gs`) vía API REST de Flowable (`Flujo 1`) enviando la variable `id_lead` y gestiona seguimientos y campañas sobre MariaDB.
-2. **Motor BPMN Flowable (`BPMN` — Implementación Parcial / Pruebas Locales):** Se desplegó y ejecutó localmente sobre Apache Tomcat el proceso ejecutable `TO-BE.bpmn` (`Process_1pot1gs`), integrando *User Tasks*, compuertas de decisión y una *Service Task* de tipo `external-worker` (`flowable:topic="sincronizar-cliente"`), manteniendo su persistencia interna en `flowable_db` (`Flujo 5`). Los modelos extendidos (incluyendo el flujo completo de *Fidelización* y registro de pérdidas) fueron validados en *Flowable Cloud* debido a inconvenientes técnicos documentados al instalar Flowable OSS 7.2 local.
-3. **External Worker (`Proyecto-2-ExternalWorker`) y Servicio Jakarta REST (`Proyecto-1-WebServices`):**
-   - **External Worker (Implementado e Integrado en PHP CLI):** El componente `worker.php` (`peluditos-worker-1`) realiza *HTTP Polling* (`Flujo 3`) contra `/external-job-api/acquire/jobs` en el tópico `sincronizar-cliente`, recupera la variable `id_lead`, verifica la información comercial en MariaDB y completa la tarea externa en Flowable.
-   - **Servicio Web Jakarta REST (Probado Localmente en Java 21):** Implementado sobre Java 21 con soporte para **Jakarta RESTful Web Services (Jersey)** (`ClientesResource.java` en `/clientes`) y acceso a datos JDBC sobre MariaDB (`/api/clientes` consultando la tabla `leads` y `/api/consultas/prueba` en el puerto 8080). En esta entrega operó en pruebas locales aisladas, mientras la WebApp y el Worker resolvieron la persistencia directa vía PHP (`mysqli`) para asegurar el flujo funcional completo.
-4. **Persistencia Relacional en MariaDB (`Base-de-Datos` — Implementado e Integrado):** Esquema `peluditos_db` (`esquema_peluditos.sql`) separado de `flowable_db`, compuesto por cuatro tablas relacionales con integridad referencial (`InnoDB`, `utf8mb4`): `leads`, `pet`, `seguimientos` y `fidelizacion`.
+1. **Capa de Presentación y Bandeja Web (`Proyecto-3-WebApp` — Verde):** Interfaz web desarrollada en HTML, CSS, JavaScript y PHP, ejecutada mediante Apache/XAMPP. Incorpora la identidad visual de Peluditos Pet Chile, incluyendo el logotipo `img/logo-peluditos-chile.webp` y la paleta de colores institucionales definida mediante variables CSS. Permite registrar información comercial, persistir datos en `peluditos_db` e iniciar instancias del proceso `Process_1pot1gs` mediante la API REST de Flowable (**Flujo 1**).
+   * *Limitación documentada para E4:* externalizar las credenciales y configuraciones actualmente gestionadas en `conexion.php` y `flowable_config.php`.
 
-## 2. Estado de los componentes al cierre de la Entrega 2
+2. **Capa de Orquestación BPMN (`BPMN` — Naranjo):** Flowable OSS desplegado sobre Apache Tomcat, en el puerto `8080`, conectado a su propia base de datos relacional `flowable_db` (**Flujo 5**). La configuración del entorno contempla la carga de parámetros externos mediante `-Dspring.config.additional-location`.
+   * *Modelo en ejecución:* el archivo utilizado para las pruebas de integración es `modelo to-be+fidelizacion.bpmn` (`Process_1pot1gs`), que publica tareas externas en el tópico `actualizar datos de ultima consulta`.
+   * *Pendientes para E4:* ajustar el proceso de fidelización para que cada instancia corresponda a un cliente individual y completar la integración de los tópicos de escritura.
 
-| Componente | Responsable | Estado E2 | Evidencia y alcance logrado |
-| :--- | :--- | :--- | :--- |
-| **Arquitectura y documentación** | Constanza Núñez | **Completado** | Diagrama UML de despliegue y componentes (`.png`, `.svg`, `.drawio`), trazabilidad del monorepo y actas de coordinación actualizadas. |
-| **Base de datos MariaDB (`Base-de-Datos`)** | Gabriel Arellano | **Implementado e Integrado** | Script `esquema_peluditos.sql` con tablas `leads`, `pet`, `seguimientos` y `fidelizacion`, separación de `flowable_db` y datos de prueba verificados. |
-| **Bandeja Web (`Proyecto-3-WebApp`)** | Gabriel Arellano | **Implementado e Integrado** | Interfaz web y API PHP conectadas con MariaDB y Flowable REST (inicio de instancias BPMN, actualización de seguimientos y campañas). Evidencias `04` a `08` cargadas. |
-| **External Worker (`Proyecto-2-ExternalWorker`)** | Gabriel Arellano | **Implementado e Integrado** | `worker.php` funcional ejecutando *polling* sobre el tópico `sincronizar-cliente`, validando `id_lead` en `peluditos_db` y completando trabajos en Flowable. |
-| **Servicios Jakarta REST (`Proyecto-1-WebServices`)** | Camila Vega | **Probado localmente** | Servicio en Java 21 con `spring-boot-starter-jersey` (Jakarta REST en `/clientes`), controlador JDBC conectado a tabla `leads` (`/api/clientes`) y endpoint `/api/consultas/prueba` verificados en puerto 8080. Pendiente enlazar consumo desde el Worker para la Entrega 3. |
-| **Modelos BPMN (`BPMN`)** | José Loyola / Gabriel Arellano | **Implementación Parcial** | Ejecución local lograda con `TO-BE.bpmn` (`Process_1pot1gs`). Los diagramas actualizados de Leads y Fidelización de José Loyola se modelaron en Flowable Cloud por errores de instalación local en OSS 7.2 y mantenimiento de plataforma (respaldado con capturas en `/BPMN/Evidencia`). |
+3. **Capa de Automatización y Servicios Web Jakarta REST (`Proyecto-2-ExternalWorker` y `Proyecto-1-WebServices` — Verde):**
+   * **External Worker (`worker.php`):** Se encuentra desacoplado del acceso directo a MariaDB. Realiza HTTP Polling contra Flowable (**Flujo 3**), consume el servicio Jakarta REST en el puerto `8081` (**Flujo 4**), registra su actividad en `worker.log` y reporta los fallos mediante el endpoint `/fail` de Flowable, utilizando un intervalo de reintento de 30 segundos (`PT30S`). Su configuración contempla variables de entorno con prefijo `PELUDITOS_*`.
+   * **Servicios Web Jakarta REST (`Proyecto-1-WebServices`):** Servicio desarrollado en Java 21 con Spring Boot y Jersey (JAX-RS), ejecutado en un puerto configurable (`8081` en el entorno de integración, para evitar la colisión con Flowable en `8080`). Expone los endpoints `GET /jakarta/clientes` y `GET /jakarta/clientes/{id_lead}`, incluyendo validaciones HTTP `400` y `404`. Accede a MariaDB mediante `JdbcTemplate` (**Flujo 6**) y utiliza configuración externalizada mediante `application.properties` y variables de entorno.
 
-## 3. Criterio aplicado en colores y trazabilidad
+4. **Capa de Persistencia Relacional (`Base-de-Datos` — Azul):** MariaDB, puerto `3306`, motor `InnoDB` y codificación `utf8mb4`. Se mantiene la separación entre las bases de datos `peluditos_db`, correspondiente a la información de negocio, y `flowable_db`, utilizada por el motor BPMN.
+   * *Esquema de negocio:* contempla cuatro tablas (`leads`, `pet`, `seguimientos` y `fidelizacion`), relacionadas mediante tres claves foráneas.
 
-- **Verde (Implementado e Integrado):** Componentes con flujo funcional comprobado entre interfaz web, motor BPMN (vía REST), External Worker y base de datos (`peluditos_db`).
-- **Naranjo (Implementación Parcial / Pruebas Locales):** Componentes probados de forma aislada (`Proyecto-1-WebServices` en puerto 8080) o con alcance parcial en el entorno local (`BPMN`).
-- **Azul (Persistencia Relacional):** Esquemas separados `peluditos_db` y `flowable_db` en MariaDB.
-- **Amarillo (Planificado para Entrega 3):** Escalabilidad proyectada (Worker de notificaciones, unificación completa con endpoints Jakarta REST y Dashboard de métricas).
+## 2. Evolución respecto a la Entrega 2
+
+| Aspecto | Entrega 2 | Entrega 3 (actual) |
+| :--- | :--- | :--- |
+| **Servicios Web (`Proyecto-1`)** | Consulta de BD mediante `@RestController` (Spring MVC); servicio JAX-RS estático en puerto `8080`. | Lógica de consulta implementada mediante JAX-RS (`ClientesResource.java`), con `GET /jakarta/clientes` y `GET /jakarta/clientes/{id_lead}` (respuestas `400` y `404`) en puerto configurable (`8081`). |
+| **External Worker (`Proyecto-2`)** | Conexión directa a MariaDB mediante `mysqli`, asociada al tópico `sincronizar-cliente`. | Sin conexión directa a MariaDB: consume el servicio JAX-RS (`8081`), atiende el tópico `actualizar datos de ultima consulta`, registra actividad en `worker.log` y reporta fallos a Flowable para su reintento. |
+| **Configuración externa** | Externalización parcial de la contraseña de MariaDB mediante `PELUDITOS_DB_PASSWORD`; otros parámetros permanecían definidos directamente en la configuración. | Variables de entorno incorporadas en `application.properties` (Java) y `worker.php` (Worker). La externalización de la configuración de la WebApp queda pendiente para E4. |
+| **Interfaz Web (`Proyecto-3`)** | Interfaz con paleta genérica verde, sin logotipo institucional. | Incorporación del logotipo de Peluditos Pet Chile y de la paleta institucional naranjo mediante variables CSS. |
+| **Base de Datos (`Base-de-Datos`)** | Documentación desactualizada, que hacía referencia a tres tablas. | README y documentación actualizados para reflejar el esquema de cuatro tablas: `leads`, `pet`, `seguimientos` y `fidelizacion`. |
