@@ -52,6 +52,12 @@ Proyecto-3-WebApp/
 │   ├── listar_seguimientos.php
 │   ├── actualizar_seguimiento.php
 │   └── gestionar_fidelizacion.php
+├── img/
+│   └── logo-peluditos-chile.webp
+├── evidencia/
+├── index.html
+├── script.js
+├── style.css
 └── README.md
 ```
 
@@ -153,6 +159,12 @@ La WebApp inicia procesos BPMN mediante solicitudes HTTP a la API REST de Flowab
 
 Cada proceso puede recibir variables que permiten relacionarlo con los registros almacenados en MariaDB.
 
+### Identidad visual
+
+Se agregó el logo de Peluditos Pet Chile en el encabezado de la página y como icono de la pestaña del navegador. El archivo está en la carpeta `img/`.
+
+También se cambiaron los colores de la interfaz por tonos naranjos, tomados del logo. Los colores se guardaron en variables al inicio de `style.css`, así se pueden cambiar fácilmente desde un solo lugar.
+
 ## 8. Funcionamiento de la integración
 
 El flujo general del sistema es el siguiente:
@@ -229,11 +241,11 @@ Las siguientes capturas documentan las pruebas realizadas:
 
 | Archivo | Descripción |
 |---|---|
-| `04-WebApp-Pantalla-Principal.png` | Pantalla principal de la aplicación |
-| `05-Integracion-Registro-Cliente-Flowable.png` | Registro de cliente e inicio de instancia BPMN |
-| `06-WebApp-Seguimientos-y-Fidelizacion.png` | Visualización de seguimientos y campañas |
-| `07-API-Actualizacion-Fidelizacion-MariaDB.png` | Confirmación de actualización de fidelización |
-| `08-API-Actualizacion-Seguimiento-MariaDB.png` | Confirmación de actualización de seguimiento comercial |
+| `WebApp-Pantalla-Principal.png.png` | Pantalla principal de la aplicación (versión anterior a la incorporación del logo y los colores institucionales) |
+| `Integracion-Registro-Cliente-Flowable.png.png` | Registro de cliente e inicio de instancia BPMN |
+| `WebApp-Seguimientos-y-Fidelizacion.png.png` | Visualización de seguimientos y campañas |
+| `Actualizacion-Fidelizacion-MariaDB.png.png` | Confirmación de actualización de fidelización |
+| `Actualizacion-Seguimiento-MariaDB.png.png` | Confirmación de actualización de seguimiento comercial |
 
 Estas evidencias permiten demostrar las funcionalidades implementadas y su comunicación con los componentes del sistema.
 

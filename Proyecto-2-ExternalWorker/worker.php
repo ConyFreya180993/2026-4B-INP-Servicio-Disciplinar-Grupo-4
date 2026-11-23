@@ -1,38 +1,43 @@
 <?php
 // ======================================================
 // EXTERNAL WORKER - PELUDITOS PET CHILE
-// Conexión Flowable + MariaDB
+// Conexión Flowable + Servicio Web Jakarta REST
 // Ejecutar: php worker.php
 // ======================================================
 
 // FLOWABLE
-$flowableUrl = "http://127.0.0.1:8080/flowable-rest";
-$usuario = "rest-admin";
-$contrasena = "test";
-$tema = "sincronizar-cliente";
-$workerId = "peluditos-worker-1";
+$flowableUrl = getenv("PELUDITOS_FLOWABLE_URL") ?: "http://127.0.0.1:8080/flowable-rest";
+$usuario = getenv("PELUDITOS_FLOWABLE_USER") ?: "rest-admin";
+$contrasena = getenv("PELUDITOS_FLOWABLE_PASSWORD") ?: "test";
+$workerId = getenv("PELUDITOS_WORKER_ID") ?: "peluditos-worker-1";
 
-// MARIADB
-$servidor = "127.0.0.1";
-$puerto = 3306;
-$usuarioBD = "root";
-$contrasenaBD = "";
-$baseDatos = "peluditos_db";
+// SERVICIO WEB
+$urlServicio = getenv("PELUDITOS_WS_URL") ?: "http://127.0.0.1:8081/jakarta";
 
-// CONEXION A MARIADB
-$conexion = new mysqli(
-    $servidor,
-    $usuarioBD,
-    $contrasenaBD,
-    $baseDatos,
-    $puerto
-);
+// TOPICOS DEL BPMN (modelo to-be+fidelizacion)
+$topicos = [
+    "actualizar datos de ultima consulta"
+];
 
-if ($conexion->connect_error) {
-    die("Error de conexión MariaDB: " . $conexion->connect_error . PHP_EOL);
+// Falta implementar (necesitan endpoints de escritura en el servicio):
+// "registrar resultado lead"
+// "registrar datos campaña iniciada"
+// "registrar si cliente muestra interes en la oferta"
+
+// REINTENTOS Y ARCHIVO DE ERRORES
+$reintentos = 3;
+$archivoLog = __DIR__ . "/worker.log";
+
+// FUNCION PARA MOSTRAR Y GUARDAR MENSAJES
+function escribirLog($mensaje)
+{
+    global $archivoLog;
+
+    $linea = "[" . date("Y-m-d H:i:s") . "] " . $mensaje . "\n";
+
+    echo $linea;
+    file_put_contents($archivoLog, $linea, FILE_APPEND);
 }
-
-$conexion->set_charset("utf8mb4");
 
 // FUNCION PARA COMUNICARSE CON FLOWABLE
 function solicitarFlowable($metodo, $ruta, $datos = null)
@@ -86,40 +91,105 @@ function solicitarFlowable($metodo, $ruta, $datos = null)
         : [];
 }
 
-// FUNCION PARA BUSCAR CLIENTE EN MARIADB
-function buscarCliente($idLead)
+// FUNCION PARA CONSULTAR EL SERVICIO WEB
+function consultarServicio($ruta)
 {
-    global $conexion;
+    global $urlServicio;
 
-    $sql = "SELECT id_lead, nombre_cliente,
-                   contacto_cliente, canal_origen, fecha_registro
-            FROM leads
-            WHERE id_lead = ?";
+    $opciones = [
+        "http" => [
+            "method" => "GET",
+            "header" => "Accept: application/json\r\n",
+            "ignore_errors" => true,
+            "timeout" => 10
+        ]
+    ];
 
-    $consulta = $conexion->prepare($sql);
-    $consulta->bind_param("i", $idLead);
-    $consulta->execute();
+    $contexto = stream_context_create($opciones);
 
-    $resultado = $consulta->get_result();
-    $cliente = $resultado->fetch_assoc();
+    $respuesta = @file_get_contents(
+        $urlServicio . $ruta,
+        false,
+        $contexto
+    );
 
-    $consulta->close();
+    $codigo = 0;
 
-    if (!$cliente) {
+    foreach ($http_response_header ?? [] as $cabecera) {
+        if (preg_match('/^HTTP\/\S+\s+(\d+)/', $cabecera, $coincidencia)) {
+            $codigo = (int) $coincidencia[1];
+        }
+    }
+
+    if ($respuesta === false || $codigo < 200 || $codigo >= 300) {
         throw new RuntimeException(
-            "No existe el cliente con id_lead $idLead"
+            "Error al consultar el servicio web (HTTP $codigo)"
         );
     }
 
-    return $cliente;
+    $datos = json_decode($respuesta, true);
+
+    if (!is_array($datos)) {
+        throw new RuntimeException(
+            "El servicio web devolvió una respuesta inválida"
+        );
+    }
+
+    return $datos;
+}
+
+// FUNCION PARA BUSCAR UN CLIENTE
+// Por ahora el servicio solo tiene GET /clientes (lista todos),
+// asi que se busca el id_lead dentro de la lista.
+function buscarCliente($idLead)
+{
+    $clientes = consultarServicio("/clientes");
+
+    foreach ($clientes as $cliente) {
+        if ((int) $cliente["id_lead"] === $idLead) {
+            return $cliente;
+        }
+    }
+
+    throw new RuntimeException(
+        "No existe el cliente con id_lead $idLead"
+    );
+}
+
+// FUNCION PARA AVISAR A FLOWABLE QUE LA TAREA FALLO
+function reportarFallo($trabajo, $mensaje)
+{
+    global $workerId, $reintentos;
+
+    $quedan = ($trabajo["retries"] ?? $reintentos) - 1;
+
+    if ($quedan < 0) {
+        $quedan = 0;
+    }
+
+    solicitarFlowable(
+        "POST",
+        "/external-job-api/acquire/jobs/" .
+            rawurlencode($trabajo["id"]) .
+            "/fail",
+        [
+            "workerId" => $workerId,
+            "errorMessage" => $mensaje,
+            "errorDetails" => $mensaje,
+            "retries" => $quedan,
+            "retryTimeout" => "PT30S"
+        ]
+    );
+
+    return $quedan;
 }
 
 // INICIO DEL WORKER
 echo "========================================\n";
 echo "EXTERNAL WORKER - PELUDITOS PET CHILE\n";
 echo "========================================\n";
-echo "Conectado a MariaDB: $baseDatos\n";
-echo "Tema: $tema\n";
+echo "Servicio web: $urlServicio\n";
+echo "Tópicos: " . implode(", ", $topicos) . "\n";
 echo "Worker: $workerId\n";
 echo "Presiona Ctrl+C para detenerlo.\n\n";
 
@@ -128,16 +198,26 @@ while (true) {
 
     try {
 
-        $trabajos = solicitarFlowable(
-            "POST",
-            "/external-job-api/acquire/jobs",
-            [
-                "topic" => $tema,
-                "lockDuration" => "PT30S",
-                "numberOfTasks" => 1,
-                "workerId" => $workerId
-            ]
-        );
+        // BUSCAR TRABAJOS DE CADA TOPICO
+        $trabajos = [];
+
+        foreach ($topicos as $tema) {
+
+            $encontrados = solicitarFlowable(
+                "POST",
+                "/external-job-api/acquire/jobs",
+                [
+                    "topic" => $tema,
+                    "lockDuration" => "PT30S",
+                    "numberOfTasks" => 1,
+                    "workerId" => $workerId
+                ]
+            );
+
+            foreach ($encontrados as $encontrado) {
+                $trabajos[] = $encontrado;
+            }
+        }
 
         foreach ($trabajos as $trabajo) {
 
@@ -148,7 +228,7 @@ while (true) {
             $idTrabajo = $trabajo["id"];
 
             echo "----------------------------------------\n";
-            echo "Tarea recibida: $idTrabajo\n";
+            escribirLog("Tarea recibida: $idTrabajo");
 
             try {
 
@@ -176,7 +256,7 @@ while (true) {
 
                 echo "ID del cliente: $idLead\n";
 
-                // CONSULTAR CLIENTE EN MARIADB
+                // CONSULTAR CLIENTE EN EL SERVICIO WEB
                 $cliente = buscarCliente($idLead);
 
                 echo "Cliente encontrado: " .
@@ -200,21 +280,34 @@ while (true) {
                     ]
                 );
 
-                echo "Tarea completada correctamente en Flowable.\n";
+                escribirLog("Tarea completada correctamente en Flowable.");
 
             } catch (Throwable $error) {
 
-                echo "ERROR AL PROCESAR TAREA: " .
-                    $error->getMessage() . "\n";
+                escribirLog(
+                    "ERROR AL PROCESAR TAREA: " . $error->getMessage()
+                );
 
-                echo "La tarea no fue completada.\n";
+                // AVISAR A FLOWABLE PARA QUE REINTENTE
+                try {
+
+                    $quedan = reportarFallo($trabajo, $error->getMessage());
+
+                    escribirLog("Fallo reportado a Flowable. Reintentos restantes: $quedan");
+
+                } catch (Throwable $errorFallo) {
+
+                    escribirLog(
+                        "No se pudo reportar el fallo a Flowable: " .
+                        $errorFallo->getMessage()
+                    );
+                }
             }
         }
 
     } catch (Throwable $error) {
 
-        echo "ERROR DE FLOWABLE: " .
-            $error->getMessage() . "\n";
+        escribirLog("ERROR DE FLOWABLE: " . $error->getMessage());
     }
 
     sleep(5);

@@ -1,27 +1,43 @@
+/* Colores institucionales de Peluditos Pet Chile */
+:root {
+    --color-acento: #F39C2B;
+    --color-primario: #B35A00;
+    --color-primario-oscuro: #8F4800;
+    --color-fondo: #FFF8EE;
+}
 
 /* Estilos generales */
 body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f6f8;
+    background-color: var(--color-fondo);
     color: #333;
 }
 
 /* Encabezado */
 header {
-    background-color: #2c7a7b;
-    color: white;
+    background-color: white;
+    color: #333;
     text-align: center;
-    padding: 25px;
+    padding: 20px;
+    border-bottom: 6px solid var(--color-acento);
 }
 
 header h1 {
     margin: 0;
+    color: var(--color-primario);
 }
 
 header p {
     margin-bottom: 0;
+}
+
+header .logo {
+    display: block;
+    height: 130px;
+    width: auto;
+    margin: 0 auto 10px;
 }
 
 /* Contenido principal */
@@ -46,7 +62,7 @@ section {
 }
 
 section h3 {
-    color: #2c7a7b;
+    color: var(--color-primario);
     margin-top: 0;
 }
 
@@ -83,11 +99,11 @@ select {
 input:focus,
 select:focus {
     outline: none;
-    border-color: #2c7a7b;
+    border-color: var(--color-primario);
 }
 
 button {
-    background-color: #2c7a7b;
+    background-color: var(--color-primario);
     color: white;
     border: none;
     padding: 12px;
@@ -97,7 +113,7 @@ button {
 }
 
 button:hover {
-    background-color: #205e5f;
+    background-color: var(--color-primario-oscuro);
 }
 
 
@@ -115,12 +131,12 @@ th, td {
 }
 
 th {
-    background-color: #2c7a7b;
+    background-color: var(--color-primario);
     color: white;
 }
 
 tr:hover {
-    background-color: #f1f5f5;
+    background-color: #FFF1DC;
 }
 
 td button {
@@ -141,7 +157,7 @@ td button {
     background-color: white;
 }
 
-.prefijo-telefono {
+.prefijo {
     font-weight: bold;
     font-size: 16px;
     color: #333;
