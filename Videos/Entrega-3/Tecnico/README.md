@@ -9,7 +9,7 @@
   https://drive.google.com/file/d/1N1k8a6kSQT4z_YW5xMI-u-DmRpMZVrr_/view?usp=sharing
   * *Contenido:* Diagrama de arquitectura actualizado (límites de entorno y configuración externa), organización del monorepo, manual de despliegue en limpio, plan hacia la Entrega 4 (Examen) y recorrido de respaldo sobre los avances y evidencias subidos en `main` por Gabriel Arellano (`Base-de-Datos`, `Proyecto-2-ExternalWorker` y `Proyecto-3-WebApp`).
 
-- **Bloque 2 (Modelos BPMN Consolidados y Coherencia del Proceso — José Loyola):** [Pendiente enlace Entrega 3]
+- **Bloque 2 (Modelos BPMN Consolidados y Coherencia del Proceso — José Loyola):** 
   https://drive.google.com/file/d/1DqDk8alE1VxaQ8xNg__LY_NQCkMxc159/view?usp=sharing
   - *Contenido:* Modelos BPMN alineados con la implementación (`TO-BE` Leads y Fidelización), variables/tópicos actualizados y despliegue en Flowable OSS.
 
