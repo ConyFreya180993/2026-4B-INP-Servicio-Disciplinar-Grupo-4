@@ -89,15 +89,22 @@ label {
 }
 
 input,
-select {
+select,
+textarea {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 5px;
     font-size: 16px;
 }
 
+textarea {
+    font-family: inherit;
+    resize: vertical;
+}
+
 input:focus,
-select:focus {
+select:focus,
+textarea:focus {
     outline: none;
     border-color: var(--color-primario);
 }

@@ -5,24 +5,55 @@
 // Ejecutar: php worker.php
 // ======================================================
 
+// CONFIGURACION
+// Los valores se leen de variables de entorno o del archivo config.local.php.
+// Si existen las dos, se usa la variable de entorno.
+// Para crear config.local.php se debe copiar config.example.php.
+$config = [];
+
+if (file_exists(__DIR__ . "/config.local.php")) {
+    $config = require __DIR__ . "/config.local.php";
+}
+
+function leerConfig($variable, $clave, $porDefecto = null)
+{
+    global $config;
+
+    $valor = getenv($variable);
+
+    if ($valor !== false && $valor !== "") {
+        return $valor;
+    }
+
+    return $config[$clave] ?? $porDefecto;
+}
+
 // FLOWABLE
-$flowableUrl = getenv("PELUDITOS_FLOWABLE_URL") ?: "http://127.0.0.1:8080/flowable-rest";
-$usuario = getenv("PELUDITOS_FLOWABLE_USER") ?: "rest-admin";
-$contrasena = getenv("PELUDITOS_FLOWABLE_PASSWORD") ?: "test";
-$workerId = getenv("PELUDITOS_WORKER_ID") ?: "peluditos-worker-1";
+$flowableUrl = leerConfig("PELUDITOS_FLOWABLE_URL", "flowable_url", "http://127.0.0.1:8080/flowable-rest");
+$usuario = leerConfig("PELUDITOS_FLOWABLE_USER", "flowable_usuario");
+$contrasena = leerConfig("PELUDITOS_FLOWABLE_PASSWORD", "flowable_password");
+$workerId = leerConfig("PELUDITOS_WORKER_ID", "worker_id", "peluditos-worker-1");
 
 // SERVICIO WEB
-$urlServicio = getenv("PELUDITOS_WS_URL") ?: "http://127.0.0.1:8081/jakarta";
+$urlServicio = leerConfig("PELUDITOS_WS_URL", "servicio_url", "http://127.0.0.1:8081/jakarta");
 
-// TOPICOS DEL BPMN (modelo to-be+fidelizacion)
+// LAS CREDENCIALES NO TIENEN VALOR POR DEFECTO
+if (!$usuario || !$contrasena) {
+    die(
+        "Faltan las credenciales de Flowable.\n" .
+        "Copie config.example.php como config.local.php y complete los valores,\n" .
+        "o defina PELUDITOS_FLOWABLE_USER y PELUDITOS_FLOWABLE_PASSWORD.\n"
+    );
+}
+
+// TOPICOS DEL BPMN (modelo to-be + fidelizacion arreglos1)
 $topicos = [
-    "actualizar datos de ultima consulta"
+    "registrar-resultado-lead"
 ];
 
 // Falta implementar (necesitan endpoints de escritura en el servicio):
-// "registrar resultado lead"
-// "registrar datos campaña iniciada"
-// "registrar si cliente muestra interes en la oferta"
+// "procesar-fidelizacion"
+// "registrar-resultado-oferta"
 
 // REINTENTOS Y ARCHIVO DE ERRORES
 $reintentos = 3;
@@ -255,6 +286,17 @@ while (true) {
                 }
 
                 echo "ID del cliente: $idLead\n";
+
+                // RESULTADO DE LA VENTA (variable que usa la compuerta del BPMN)
+                $venta = $variables["seConcretoLaVenta"] ?? null;
+
+                if ($venta === true || $venta === "true") {
+                    echo "Resultado de la venta: concretada\n";
+                } elseif ($venta === false || $venta === "false") {
+                    echo "Resultado de la venta: no concretada\n";
+                } else {
+                    echo "Resultado de la venta: sin información\n";
+                }
 
                 // CONSULTAR CLIENTE EN EL SERVICIO WEB
                 $cliente = buscarCliente($idLead);

@@ -1,0 +1,5 @@
+# Configuración local con credenciales (se usa config.example.php como plantilla)
+config.local.php
+
+# Registro de errores del External Worker
+worker.log

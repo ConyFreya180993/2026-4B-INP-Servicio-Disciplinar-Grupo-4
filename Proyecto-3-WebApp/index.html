@@ -28,7 +28,7 @@
         <section>
 
             <h3>Registrar clientes potenciales</h3>
-            <p>Ingresar nuevos clientes</p>
+            <p>Ingresar nuevos clientes con su mascota y su consulta</p>
 
             <form id="form-lead">
 
@@ -86,6 +86,90 @@
                         <option value="WhatsApp">WhatsApp</option>
                         <option value="Instagram">Instagram</option>
                         <option value="Facebook">Facebook</option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label for="nombre_mascota">
+                        Nombre de la mascota:
+                    </label>
+
+                    <input
+                        type="text"
+                        id="nombre_mascota"
+                        name="nombre_mascota"
+                        placeholder="Luna"
+                        maxlength="50"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="tipo_mascota">
+                        Tipo de mascota:
+                    </label>
+
+                    <select
+                        id="tipo_mascota"
+                        name="tipo_mascota"
+                        required
+                    >
+                        <option value="" disabled selected>
+                            Seleccione un tipo
+                        </option>
+
+                        <option value="Gato">Gato</option>
+                        <option value="Perro">Perro</option>
+
+                    </select>
+                </div>
+
+                <div>
+                    <label for="cumpleanos">
+                        Cumpleaños de la mascota:
+                    </label>
+
+                    <input
+                        type="date"
+                        id="cumpleanos"
+                        name="cumpleanos"
+                        required
+                    >
+                </div>
+
+                <div>
+                    <label for="consulta">
+                        Consulta del cliente:
+                    </label>
+
+                    <textarea
+                        id="consulta"
+                        name="consulta"
+                        rows="3"
+                        maxlength="1000"
+                        placeholder="Pastel de cumpleaños para Luna"
+                        required
+                    ></textarea>
+                </div>
+
+                <div>
+                    <label for="tamano_pastel">
+                        Tamaño del pastel:
+                    </label>
+
+                    <select
+                        id="tamano_pastel"
+                        name="tamano_pastel"
+                        required
+                    >
+                        <option value="" disabled selected>
+                            Seleccione un tamaño
+                        </option>
+
+                        <option value="Pequeño">Pequeño</option>
+                        <option value="Mediano">Mediano</option>
+                        <option value="Grande">Grande</option>
 
                     </select>
                 </div>

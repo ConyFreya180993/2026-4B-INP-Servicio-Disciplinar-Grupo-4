@@ -11,14 +11,33 @@
 const formulario = document.getElementById("form-lead");
 
 if (formulario) {
+
+    // El cumpleaños de la mascota no puede ser una fecha futura
+    const campoCumpleanos = document.getElementById("cumpleanos");
+    campoCumpleanos.max = new Date().toISOString().split("T")[0];
+
     formulario.addEventListener("submit", async function(event) {
         event.preventDefault();
 
         const nombre = document.getElementById("nombre_cliente").value.trim();
         const contacto = document.getElementById("contacto_cliente").value.trim();
         const canal = document.getElementById("canal_origen").value;
+        const nombreMascota = document.getElementById("nombre_mascota").value.trim();
+        const tipoMascota = document.getElementById("tipo_mascota").value;
+        const cumpleanos = document.getElementById("cumpleanos").value;
+        const consulta = document.getElementById("consulta").value.trim();
+        const tamanoPastel = document.getElementById("tamano_pastel").value;
 
-        if (!nombre || !/^[0-9]{8}$/.test(contacto) || !canal) {
+        if (
+            !nombre ||
+            !/^[0-9]{8}$/.test(contacto) ||
+            !canal ||
+            !nombreMascota ||
+            !tipoMascota ||
+            !cumpleanos ||
+            !consulta ||
+            !tamanoPastel
+        ) {
             alert("Complete correctamente todos los campos.");
             return;
         }
@@ -30,7 +49,12 @@ if (formulario) {
             const datos = new URLSearchParams({
                 nombre_cliente: nombre,
                 contacto_cliente: contacto,
-                canal_origen: canal
+                canal_origen: canal,
+                nombre_mascota: nombreMascota,
+                tipo_mascota: tipoMascota,
+                cumpleanos: cumpleanos,
+                consulta: consulta,
+                tamano_pastel: tamanoPastel
             });
 
             const respuesta = await fetch("api/registrar_lead.php", {
@@ -61,6 +85,9 @@ if (formulario) {
                 alert(mensaje);
 
             formulario.reset();
+
+            // Mostrar de inmediato el nuevo seguimiento en la tabla
+            cargarSeguimientos();
 
         } catch (error) {
             alert("Error al registrar el cliente: " + error.message);

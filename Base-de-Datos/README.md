@@ -27,7 +27,7 @@ La base de datos comercial se denomina `peluditos_db` y se mantiene independient
 
 ## 3. Archivo Principal y Estructura (`peluditos_db`)
 
-El archivo `esquema_peluditos.sql` contiene las instrucciones necesarias para crear la base de datos, definir sus tablas relacionadas, insertar registros ficticios y realizar consultas de verificación.
+El archivo `esquema_peluditos.sql` contiene las instrucciones necesarias para crear la base de datos, definir sus tablas relacionadas. El script solo crea la estructura y no inserta datos de prueba. Las consultas de verificación se encuentran en la sección 4 de este documento.
 
 ### Tabla `leads` (Clientes Potenciales)
 
@@ -116,7 +116,7 @@ Para reproducir el esquema y las pruebas en un entorno local:
 2. Ingresar desde el navegador a http://localhost
 3. Abrir phpMyAdmin (http://localhost/phpmyadmin).
 4. Ir a la pestaña **Importar** y seleccionar el archivo `esquema_peluditos.sql`.
-5. Ejecutar la importación. Se creará la base `peluditos_db` con sus cuatro tablas y datos de prueba.
+5. Ejecutar la importación. Se creará la base `peluditos_db` con sus cuatro tablas, sin datos.
 6. Verificar que existan las tablas `leads`, `pet`, `seguimientos` y `fidelizacion`:
 
 ```sql
@@ -124,7 +124,7 @@ USE peluditos_db;
 SHOW TABLES;
 ```
 
-7. Verificar los datos de prueba (3 clientes, 3 mascotas, 3 seguimientos y 1 campaña):
+7. Verificar que las tablas se crearon vacías (cada consulta debe devolver 0 en una base nueva):
 
 ```sql
 SELECT COUNT(*) FROM leads;
@@ -145,3 +145,21 @@ Las capturas se encuentran en la carpeta `Evidencia/`:
 | `structura-tabla-seguimientos.png` | Estructura de la tabla `seguimientos`. |
 | `estructura-tabla-fidelizacion.png` | Estructura de la tabla `fidelizacion`. |
 | `verificacion-integracion-flowable.png` | Verificación de la integración con Flowable. |
+
+## 6. Observaciones de la revisión
+
+Se revisó la base de datos `peluditos_db` en funcionamiento y se comparó con el archivo `esquema_peluditos.sql` y con este documento.
+
+**Lo que está correcto:**
+
+- Existen las cuatro tablas (`leads`, `pet`, `seguimientos` y `fidelizacion`) con las mismas columnas y tipos descritos en este README.
+- Las tres claves foráneas (`fk_pet_leads`, `fk_seguimientos_pet` y `fk_fidelizacion_pet`) están creadas y usan la regla `RESTRICT`: no se puede borrar un cliente que tenga mascotas, ni una mascota que tenga seguimientos o campañas.
+
+**Limitaciones conocidas:**
+
+- **Una mascota por registro:** el formulario de la WebApp guarda el cliente, una mascota y un seguimiento en `Pendiente` en una sola operación. Si se necesita más de una mascota por cliente, hay que agregarla directamente en la base, ya que la WebApp todavía no lo permite.
+- **Campañas de fidelización:** la WebApp no crea campañas al registrar un cliente. Las filas de `fidelizacion` deben cargarse aparte.
+- **Base de datos vacía:** el script solo crea la estructura y no inserta datos de prueba. Las pruebas del Worker y de la WebApp necesitan clientes existentes, por lo que hay que registrarlos antes desde la WebApp o directamente en la base. Las pruebas del Worker usaron los `id_lead` 1, 2 y 3, que no existen en una base recién creada.
+- **Formato de teléfono:** la WebApp valida y guarda los teléfonos como `+569XXXXXXXX`. Si se insertan datos manualmente, conviene usar ese mismo formato.
+- **Script repetible:** como el script no tiene `INSERT` y usa `CREATE ... IF NOT EXISTS`, se puede ejecutar más de una vez sin duplicar datos ni borrar los existentes.
+- **Fecha del evento:** `fidelizacion.fecha_evento` repite información que ya existe en `pet.cumpleanos`. Se mantiene así mientras se define con el grupo el origen de esa fecha.

@@ -14,7 +14,7 @@ function iniciarProcesoFlowable($idLead)
     $url = FLOWABLE_URL . "/runtime/process-instances";
 
     $datos = [
-        "processDefinitionKey" => "Process_1pot1gs",
+        "processDefinitionKey" => "Process_1pot1gs00",
         "name" => "Registro cliente Peluditos #" . $idLead,
         "variables" => [
             [
@@ -110,12 +110,22 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 $nombre = trim($_POST["nombre_cliente"] ?? "");
 $contacto = trim($_POST["contacto_cliente"] ?? "");
 $canal = trim($_POST["canal_origen"] ?? "");
+$nombre_mascota = trim($_POST["nombre_mascota"] ?? "");
+$tipo_mascota = trim($_POST["tipo_mascota"] ?? "");
+$cumpleanos = trim($_POST["cumpleanos"] ?? "");
+$consulta_texto = trim($_POST["consulta"] ?? "");
+$tamano_pastel = trim($_POST["tamano_pastel"] ?? "");
 
 // ======================================================
 // VALIDAR CAMPOS OBLIGATORIOS
 // ======================================================
 
-if ($nombre === "" || $contacto === "" || $canal === "") {
+if (
+    $nombre === "" || $contacto === "" || $canal === "" ||
+    $nombre_mascota === "" || $tipo_mascota === "" ||
+    $cumpleanos === "" || $consulta_texto === "" ||
+    $tamano_pastel === ""
+) {
 
     http_response_code(400);
 
@@ -186,11 +196,54 @@ if (!in_array($canal, $canales_validos, true)) {
 }
 
 // ======================================================
-// REGISTRAR CLIENTE EN MARIADB
+// VALIDAR DATOS DE LA MASCOTA Y DE LA CONSULTA
+// ======================================================
+
+$tipos_validos = ["Gato", "Perro"];
+$tamanos_validos = ["Pequeño", "Mediano", "Grande"];
+
+$error_datos = "";
+
+if (mb_strlen($nombre_mascota) > 50) {
+    $error_datos = "El nombre de la mascota no puede superar 50 caracteres";
+} elseif (!in_array($tipo_mascota, $tipos_validos, true)) {
+    $error_datos = "Tipo de mascota no válido";
+} elseif (!in_array($tamano_pastel, $tamanos_validos, true)) {
+    $error_datos = "Tamaño de pastel no válido";
+} elseif (mb_strlen($consulta_texto) > 1000) {
+    $error_datos = "La consulta no puede superar 1000 caracteres";
+} else {
+    $fecha = DateTime::createFromFormat("Y-m-d", $cumpleanos);
+
+    if (!$fecha || $fecha->format("Y-m-d") !== $cumpleanos) {
+        $error_datos = "La fecha de cumpleaños no es válida";
+    } elseif ($fecha > new DateTime("today")) {
+        $error_datos = "El cumpleaños no puede ser una fecha futura";
+    }
+}
+
+if ($error_datos !== "") {
+
+    http_response_code(400);
+
+    echo json_encode([
+        "estado" => "error",
+        "mensaje" => $error_datos
+    ], JSON_UNESCAPED_UNICODE);
+
+    exit;
+}
+
+// ======================================================
+// REGISTRAR CLIENTE, MASCOTA Y SEGUIMIENTO EN MARIADB
+// Se guardan juntos: si algo falla, no se guarda nada.
 // ======================================================
 
 try {
 
+    $conexion->begin_transaction();
+
+    // Cliente
     $sql = "INSERT INTO leads
             (nombre_cliente, contacto_cliente, canal_origen)
             VALUES (?, ?, ?)";
@@ -210,7 +263,56 @@ try {
 
     $consulta->close();
 
+    // Mascota
+    $sql = "INSERT INTO pet
+            (id_lead, nombre_mascota, tipo_pet, cumpleanos)
+            VALUES (?, ?, ?, ?)";
+
+    $consulta = $conexion->prepare($sql);
+
+    $consulta->bind_param(
+        "isss",
+        $id_lead,
+        $nombre_mascota,
+        $tipo_mascota,
+        $cumpleanos
+    );
+
+    $consulta->execute();
+
+    $id_pet = $conexion->insert_id;
+
+    $consulta->close();
+
+    // Seguimiento (queda pendiente hasta que se registre el resultado)
+    $sql = "INSERT INTO seguimientos
+            (id_pet, consulta, tamano_pastel, resultado_consulta)
+            VALUES (?, ?, ?, 'Pendiente')";
+
+    $consulta = $conexion->prepare($sql);
+
+    $consulta->bind_param(
+        "iss",
+        $id_pet,
+        $consulta_texto,
+        $tamano_pastel
+    );
+
+    $consulta->execute();
+
+    $id_seguimiento = $conexion->insert_id;
+
+    $consulta->close();
+
+    $conexion->commit();
+
 } catch (Throwable $error) {
+
+    try {
+        $conexion->rollback();
+    } catch (Throwable $errorRollback) {
+        error_log("Error al deshacer el registro: " . $errorRollback->getMessage());
+    }
 
     error_log("Error MariaDB: " . $error->getMessage());
 
@@ -236,8 +338,10 @@ try {
 
     echo json_encode([
         "estado" => "correcto",
-        "mensaje" => "Cliente registrado y proceso Flowable iniciado",
+        "mensaje" => "Cliente, mascota y consulta registrados, y proceso Flowable iniciado",
         "id_lead" => $id_lead,
+        "id_pet" => $id_pet,
+        "id_seguimiento" => $id_seguimiento,
         "flowable" => [
             "estado" => "correcto",
             "process_instance_id" => $proceso["id"],
@@ -256,8 +360,10 @@ try {
 
     echo json_encode([
         "estado" => "correcto",
-        "mensaje" => "Cliente registrado en MariaDB, pero no se pudo iniciar Flowable",
+        "mensaje" => "Cliente, mascota y consulta registrados en MariaDB, pero no se pudo iniciar Flowable",
         "id_lead" => $id_lead,
+        "id_pet" => $id_pet,
+        "id_seguimiento" => $id_seguimiento,
         "flowable" => [
             "estado" => "error",
             "mensaje" => "No se pudo iniciar el proceso BPMN"
